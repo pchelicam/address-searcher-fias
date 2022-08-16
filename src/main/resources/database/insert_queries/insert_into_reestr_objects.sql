@@ -1,0 +1,1 @@
+INSERT INTO reestr_objects (object_id, object_guid) VALUES (?, ?)

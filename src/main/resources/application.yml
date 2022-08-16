@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fias
+    username: postgres
+    password: postgres
+#    schema: fias
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: fias
+        #ddl-auto: validate
+#        generate-statistics: true
+#        jdbc:
+#          batch_size: 30
+#        order_inserts: true
+  flyway:
+    enabled: true
+    schemas: fias
+    url: jdbc:postgresql://localhost:5432/fias
+    user: postgres
+    password: postgres
+    baseline-on-migrate: true
+    #validate-on-migrate: true
+    #datasources:
+    #  default:
+    locations: classpath:database/migration
