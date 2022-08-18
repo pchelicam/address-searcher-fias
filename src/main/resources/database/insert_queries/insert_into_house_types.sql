@@ -1,0 +1,1 @@
+INSERT INTO house_types (house_type_id, house_type_name, house_type_shortname) VALUES (?, ?, ?)

@@ -1,0 +1,1 @@
+INSERT INTO addr_objects (addr_obj_id, object_id, addr_name, type_name) VALUES (?, ?, ?, ?)

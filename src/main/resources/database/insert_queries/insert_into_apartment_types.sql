@@ -1,0 +1,1 @@
+INSERT INTO apartment_types (apartment_type_id, apartment_type_name, apartment_type_shortname) VALUES (?, ?, ?)
