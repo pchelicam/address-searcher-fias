@@ -1,1 +1,1 @@
-INSERT INTO reestr_objects (object_id, object_guid) VALUES (?, ?)
+INSERT INTO reestr_objects_rc64 (object_id, object_guid, region_code) VALUES (?, ?, ?)
