@@ -31,6 +31,7 @@ CREATE TABLE addr_objects (
     object_id BIGINT,
     addr_name VARCHAR(250),
     type_name VARCHAR(50),
+    obj_level SMALLINT,
     region_code SMALLINT
 );
 

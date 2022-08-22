@@ -1,4 +1,4 @@
-package ru.pchelicam.entities;
+package ru.pchelicam.entities.rc64.dao;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "reestr_objects")
+@Table(name = "reestr_objects_rc64")
 public class ReestrObject {
 
     @Id

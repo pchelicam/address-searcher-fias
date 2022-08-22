@@ -1,11 +1,11 @@
-CREATE PROCEDURE delete_extra_data()
+CREATE OR REPLACE PROCEDURE delete_extra_data()
 LANGUAGE 'plpgsql'
 AS $$
 BEGIN
 
     DELETE FROM house_types
     WHERE house_type_id IS NULL
-    OR house_type_id in (4, 6, 7, 8, 9, 11, 12, 13, 14);
+    OR house_type_id in (4, 6, 7, 9, 11, 12, 13, 14);
 
     DELETE FROM apartment_types
     WHERE apartment_type_id IS NULL;
@@ -40,6 +40,11 @@ BEGIN
     ALTER TABLE houses_rc64 ADD PRIMARY KEY (house_id);
 
     ALTER TABLE apartments_rc64 ADD PRIMARY KEY (apartment_id);
+
+    CREATE INDEX i_addr_objects_rc64_addr_name
+    ON addr_objects_rc64
+    USING btree
+    (LOWER(addr_name));
 
 END; $$
 

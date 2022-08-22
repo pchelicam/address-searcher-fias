@@ -62,7 +62,8 @@ public class XmlParserManager {
     private void callDeleteExtraData() throws IOException, SQLException {
         Connection connection = DBCPDataSource.getConnection();
         CallableStatement callableStatement = connection.prepareCall(
-                readFile(System.getProperty("user.dir") + "/src/main/resources/database/call_procedures_queries/call_delete_extra_data.sql"));
+                readFile(System.getProperty("user.dir")
+                        + "/src/main/resources/database/call_procedures_queries/call_delete_extra_data.sql"));
         callableStatement.execute();
         callableStatement.close();
         connection.close();
@@ -79,7 +80,7 @@ public class XmlParserManager {
                 Paths.get(pathToXmlData)
                         .getFileName().toString());
     }
-
+    // TODO: rename fields
     private static class XmlParserHouseTypes extends DefaultHandler {
 
         private Connection connection;
@@ -385,6 +386,7 @@ public class XmlParserManager {
             String objectId = attributes.getValue("OBJECTID");
             String addrName = attributes.getValue("NAME");
             String typeName = attributes.getValue("TYPENAME");
+            String objLevel = attributes.getValue("LEVEL");
             try {
                 if (addrObjId != null) {
                     preparedStatement.setLong(1, Long.parseLong(addrObjId));
@@ -398,7 +400,12 @@ public class XmlParserManager {
                 }
                 preparedStatement.setString(3, addrName);
                 preparedStatement.setString(4, typeName);
-                preparedStatement.setShort(5, regionCode);
+                if (objLevel != null) {
+                    preparedStatement.setShort(5, Short.parseShort(objLevel));
+                } else {
+                    preparedStatement.setNull(5, Types.SMALLINT);
+                }
+                preparedStatement.setShort(6, regionCode);
                 if (amountOfBatches == 80) {
                     preparedStatement.executeBatch();
                     preparedStatement.clearBatch();

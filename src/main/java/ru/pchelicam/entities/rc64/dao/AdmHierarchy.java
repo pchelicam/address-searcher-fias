@@ -1,4 +1,4 @@
-package ru.pchelicam.entities;
+package ru.pchelicam.entities.rc64.dao;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "adm_hierarchy")
+@Table(name = "adm_hierarchy_rc64")
 public class AdmHierarchy {
 
     @Id
@@ -19,11 +19,11 @@ public class AdmHierarchy {
     @Column(name = "parent_object_id")
     private Long parentObjectId;
 
-    @Column(name = "region_code")
-    private Short regionCode;
-
     @Column(name = "full_path")
     private String fullPath;
+
+    @Column(name = "region_code")
+    private Short regionCode;
 
     public AdmHierarchy() {
     }

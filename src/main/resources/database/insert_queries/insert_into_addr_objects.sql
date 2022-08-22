@@ -1,1 +1,1 @@
-INSERT INTO addr_objects_rc64 (addr_obj_id, object_id, addr_name, type_name, region_code) VALUES (?, ?, ?, ?, ?)
+INSERT INTO addr_objects_rc64 (addr_obj_id, object_id, addr_name, type_name, obj_level, region_code) VALUES (?, ?, ?, ?, ?, ?)
