@@ -22,8 +22,8 @@ CREATE TABLE adm_hierarchy (
     adm_h_id BIGINT,
     object_id BIGINT,
     parent_object_id BIGINT,
-    region_code SMALLINT,
-    full_path VARCHAR(150)
+    full_path VARCHAR(150),
+    region_code SMALLINT
 );
 
 CREATE TABLE addr_objects (

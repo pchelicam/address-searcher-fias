@@ -24,6 +24,7 @@ public class Application implements CommandLineRunner {
     public void run(String... args) throws Exception {
         Instant start = Instant.now();
         xmlParserManager.manageDataInsert();
+
         Instant end = Instant.now();
         Duration duration = Duration.between(start, end);
 

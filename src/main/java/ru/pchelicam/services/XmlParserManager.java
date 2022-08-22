@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 
 @Service
 public class XmlParserManager {
@@ -24,41 +21,58 @@ public class XmlParserManager {
     public void manageDataInsert() throws ParserConfigurationException, SAXException, IOException, SQLException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
-        Short regionCode = parseRegionCode("F:/gar_xml/64");
+        Short regionCode = parseRegionCode("E:/gar_xml/64");
 
         XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(System.getProperty("user.dir")
                 + "/src/main/resources/database/insert_queries/insert_into_house_types.sql");
-        parser.parse(new File("F:/gar_xml/AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
+        parser.parse(new File("E:/gar_xml/AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
 
         XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(System.getProperty("user.dir")
                 + "/src/main/resources/database/insert_queries/insert_into_apartment_types.sql");
-        parser.parse(new File("F:/gar_xml/AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
+        parser.parse(new File("E:/gar_xml/AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
 
         XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(System.getProperty("user.dir")
                 + "/src/main/resources/database/insert_queries/insert_into_reestr_objects.sql",
                 regionCode);
-        parser.parse(new File("F:/gar_xml/64/AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
+        parser.parse(new File("E:/gar_xml/64/AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
 
         XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(System.getProperty("user.dir")
                 + "/src/main/resources/database/insert_queries/insert_into_adm_hierarchy.sql",
                 regionCode);
-        parser.parse(new File("F:/gar_xml/64/AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
+        parser.parse(new File("E:/gar_xml/64/AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(System.getProperty("user.dir")
                 + "/src/main/resources/database/insert_queries/insert_into_addr_objects.sql",
                 regionCode);
-        parser.parse(new File("F:/gar_xml/64/AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
+        parser.parse(new File("E:/gar_xml/64/AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
 
         XmlParserHouses xmlParserHouses = new XmlParserHouses(System.getProperty("user.dir")
                 + "/src/main/resources/database/insert_queries/insert_into_houses.sql",
                 regionCode);
-        parser.parse(new File("F:/gar_xml/64/AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
+        parser.parse(new File("E:/gar_xml/64/AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
 
         XmlParserApartments xmlParserApartments = new XmlParserApartments(System.getProperty("user.dir")
                 + "/src/main/resources/database/insert_queries/insert_into_apartments.sql",
                 regionCode);
-        parser.parse(new File("F:/gar_xml/64/AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+        parser.parse(new File("E:/gar_xml/64/AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+
+        callDeleteExtraData();
     }
+
+    private void callDeleteExtraData() throws IOException, SQLException {
+        Connection connection = DBCPDataSource.getConnection();
+        CallableStatement callableStatement = connection.prepareCall(
+                readFile(System.getProperty("user.dir") + "/src/main/resources/database/call_procedures_queries/call_delete_extra_data.sql"));
+        callableStatement.execute();
+        callableStatement.close();
+        connection.close();
+    }
+
+    private static String readFile(String path) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, StandardCharsets.UTF_8);
+    }
+
 
     private Short parseRegionCode(String pathToXmlData) {
         return Short.parseShort(
