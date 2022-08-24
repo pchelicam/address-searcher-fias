@@ -16,28 +16,4 @@ public class ReestrObject {
     @Column(name = "object_guid")
     private String objectGUID;
 
-    public ReestrObject() {
-    }
-
-    public ReestrObject(Long objectId, String objectGUID) {
-        this.objectId = objectId;
-        this.objectGUID = objectGUID;
-    }
-
-    public Long getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(Long objectId) {
-        this.objectId = objectId;
-    }
-
-    public String getObjectGUID() {
-        return objectGUID;
-    }
-
-    public void setObjectGUID(String objectGUID) {
-        this.objectGUID = objectGUID;
-    }
-
 }

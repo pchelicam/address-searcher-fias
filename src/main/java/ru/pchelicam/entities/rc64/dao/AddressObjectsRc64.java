@@ -28,7 +28,6 @@ public class AddressObjectsRc64 {
     @Column(name = "region_code")
     private Short regionCode;
 
-
     public Long getAddressObjectId() {
         return addressObjectId;
     }

@@ -26,3 +26,7 @@ spring:
     #datasources:
     #  default:
     locations: classpath:database/migration
+
+server:
+  servlet:
+    contextPath: /addressSearcher

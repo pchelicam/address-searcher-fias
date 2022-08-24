@@ -1,0 +1,4 @@
+CREATE INDEX i_adm_hierarchy_rc64_parent_object_id
+ON adm_hierarchy_rc64
+USING btree
+(parent_object_id);
