@@ -13,7 +13,6 @@ import ru.pchelicam.entities.rc64.dto.LocalityDTO;
 import ru.pchelicam.entities.rc64.dto.StreetDTO;
 import ru.pchelicam.repositories.AddressObjectsRc64Repository;
 import ru.pchelicam.repositories.ApartmentsWithApartmentTypeNamesRepository;
-import ru.pchelicam.repositories.HousesRc64Repository;
 import ru.pchelicam.repositories.HousesWithHouseTypeNamesRepository;
 
 import java.util.List;
@@ -23,17 +22,14 @@ import java.util.stream.Collectors;
 public class AddressSearcherControllerRc64 {
 
     private final AddressObjectsRc64Repository addressObjectsRc64Repository;
-    private final HousesRc64Repository housesRc64Repository;
     private final HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository;
     private final ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository;
 
     @Autowired
     public AddressSearcherControllerRc64(AddressObjectsRc64Repository addressObjectsRc64Repository,
-                                         HousesRc64Repository housesRc64Repository,
                                          HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository,
                                          ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository) {
         this.addressObjectsRc64Repository = addressObjectsRc64Repository;
-        this.housesRc64Repository = housesRc64Repository;
         this.housesWithHouseTypeNamesRepository = housesWithHouseTypeNamesRepository;
         this.apartmentsWithApartmentTypeNamesRepository = apartmentsWithApartmentTypeNamesRepository;
     }
