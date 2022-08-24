@@ -9,6 +9,7 @@ import javax.persistence.*;
                         targetClass = HousesWithHouseTypeNames.class,
                         columns = {
                                 @ColumnResult(name = "object_id", type = Long.class),
+                                @ColumnResult(name = "object_guid", type = String.class),
                                 @ColumnResult(name = "house_num", type = String.class),
                                 @ColumnResult(name = "house_type_name", type = String.class)
                         }
@@ -17,8 +18,10 @@ import javax.persistence.*;
 )
 @NamedNativeQuery(
         name = "HousesWithHouseTypeNames.getHousesWithHouseTypeNames",
-        query = "SELECT h.object_id, h.house_num, ht.house_type_name\n" +
+        query = "SELECT h.object_id, ro.object_guid, h.house_num, ht.house_type_name\n" +
                 "FROM {h-schema}houses_rc64 h\n" +
+                "JOIN {h-schema}reestr_objects_rc64 ro\n" +
+                "ON h.object_id = ro.object_id\n" +
                 "JOIN {h-schema}adm_hierarchy_rc64 ah\n" +
                 "ON h.object_id = ah.object_id\n" +
                 "JOIN {h-schema}house_types ht\n" +
@@ -34,14 +37,18 @@ public class HousesWithHouseTypeNames {
     @Column(name = "object_id")
     private Long objectId;
 
+    @Column(name = "object_guid")
+    private String objectGUID;
+
     @Column(name = "house_num")
     private String houseNum;
 
     @Column(name = "house_type_name")
     private String houseTypeName;
 
-    public HousesWithHouseTypeNames(Long objectId, String houseNum, String houseTypeName) {
+    public HousesWithHouseTypeNames(Long objectId, String objectGUID, String houseNum, String houseTypeName) {
         this.objectId = objectId;
+        this.objectGUID = objectGUID;
         this.houseNum = houseNum;
         this.houseTypeName = houseTypeName;
     }
@@ -52,6 +59,14 @@ public class HousesWithHouseTypeNames {
 
     public void setObjectId(Long objectId) {
         this.objectId = objectId;
+    }
+
+    public String getObjectGUID() {
+        return objectGUID;
+    }
+
+    public void setObjectGUID(String objectGUID) {
+        this.objectGUID = objectGUID;
     }
 
     public String getHouseNum() {

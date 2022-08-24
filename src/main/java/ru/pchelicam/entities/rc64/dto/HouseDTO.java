@@ -4,12 +4,15 @@ public class HouseDTO {
 
     private Long id;
 
+    private String houseGUID;
+
     private String houseNum;
 
     private String houseTypeName;
 
-    public HouseDTO(Long id, String houseNum, String houseTypeName) {
+    public HouseDTO(Long id, String houseGUID, String houseNum, String houseTypeName) {
         this.id = id;
+        this.houseGUID = houseGUID;
         this.houseNum = houseNum;
         this.houseTypeName = houseTypeName;
     }
@@ -20,6 +23,14 @@ public class HouseDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getHouseGUID() {
+        return houseGUID;
+    }
+
+    public void setHouseGUID(String houseGUID) {
+        this.houseGUID = houseGUID;
     }
 
     public String getHouseNum() {
