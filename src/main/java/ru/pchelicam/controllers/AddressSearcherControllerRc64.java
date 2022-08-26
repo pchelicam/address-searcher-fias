@@ -1,6 +1,8 @@
 package ru.pchelicam.controllers;
 
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,14 +26,17 @@ public class AddressSearcherControllerRc64 {
     private final AddressObjectsRc64Repository addressObjectsRc64Repository;
     private final HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository;
     private final ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository;
+    private final Flyway flyway;
 
     @Autowired
     public AddressSearcherControllerRc64(AddressObjectsRc64Repository addressObjectsRc64Repository,
                                          HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository,
-                                         ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository) {
+                                         ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository,
+                                         Flyway flyway) {
         this.addressObjectsRc64Repository = addressObjectsRc64Repository;
         this.housesWithHouseTypeNamesRepository = housesWithHouseTypeNamesRepository;
         this.apartmentsWithApartmentTypeNamesRepository = apartmentsWithApartmentTypeNamesRepository;
+        this.flyway = flyway;
     }
 
     @GetMapping(value = "/64/locality")
@@ -60,10 +65,20 @@ public class AddressSearcherControllerRc64 {
 
     @GetMapping(value = "/64/apartment")
     public List<ApartmentDTO> getApartmentsRc64(@RequestParam Long houseId) {
-        List<ApartmentsWithApartmentTypeNames> apartmentsWithApartmentTypeNamesList = apartmentsWithApartmentTypeNamesRepository.getApartmentsWithApartmentTypeNames(houseId);
+        List<ApartmentsWithApartmentTypeNames> apartmentsWithApartmentTypeNamesList = apartmentsWithApartmentTypeNamesRepository
+                .getApartmentsWithApartmentTypeNames(houseId);
         return apartmentsWithApartmentTypeNamesList.stream().map(a ->
                         new ApartmentDTO(a.getObjectId(), a.getObjectGUID(), a.getApartmentNumber(), a.getApartmentTypeName()))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "/createdb")
+    public ResponseEntity<?> dropDBAndCreateNewDB() {
+        Flyway.configure()
+                .configuration(flyway.getConfiguration())
+                .load()
+                .migrate();
+        return ResponseEntity.noContent().build();
     }
 
 }

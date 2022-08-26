@@ -74,7 +74,6 @@ public class XmlParserManager {
         return new String(encoded, StandardCharsets.UTF_8);
     }
 
-
     private Short parseRegionCode(String pathToXmlData) {
         return Short.parseShort(
                 Paths.get(pathToXmlData)

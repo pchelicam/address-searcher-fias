@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -24,6 +25,14 @@ public class Application implements CommandLineRunner {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
+
+//    // Disable auto migration
+//    @Bean
+//    public FlywayMigrationStrategy flywayMigrationStrategy() {
+//        return flyway -> {
+//            // do nothing
+//        };
+//    }
 
     @Override
     public void run(String... args) throws Exception {

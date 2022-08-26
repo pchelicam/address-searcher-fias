@@ -1,13 +1,13 @@
 CREATE SCHEMA IF NOT EXISTS fias;
 
 CREATE TABLE house_types (
-    house_type_id INTEGER,
+    house_type_id INTEGER PRIMARY KEY,
     house_type_name VARCHAR(50),
     house_type_shortname VARCHAR(50)
 );
 
 CREATE TABLE apartment_types (
-    apartment_type_id INTEGER,
+    apartment_type_id INTEGER PRIMARY KEY,
     apartment_type_name VARCHAR(50),
     apartment_type_shortname VARCHAR(50)
 );
@@ -50,23 +50,3 @@ CREATE TABLE apartments (
     apart_number VARCHAR(50),
     region_code SMALLINT
 );
-
-CREATE TABLE reestr_objects_rc64 (
-    CONSTRAINT reestr_objects_rc64_check CHECK (region_code = 64)
-) INHERITS (reestr_objects);
-
-CREATE TABLE adm_hierarchy_rc64 (
-    CONSTRAINT adm_hierarchy_rc64_check CHECK (region_code = 64)
-) INHERITS (adm_hierarchy);
-
-CREATE TABLE addr_objects_rc64 (
-    CONSTRAINT addr_objects_rc64_check CHECK (region_code = 64)
-) INHERITS (addr_objects);
-
-CREATE TABLE houses_rc64 (
-    CONSTRAINT houses_rc64_check CHECK (region_code = 64)
-) INHERITS (houses);
-
-CREATE TABLE apartments_rc64 (
-    CONSTRAINT apartments_rc64_check CHECK (region_code = 64)
-) INHERITS (apartments);

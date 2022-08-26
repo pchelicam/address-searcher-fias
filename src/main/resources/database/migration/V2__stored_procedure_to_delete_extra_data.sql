@@ -27,10 +27,6 @@ BEGIN
     WHERE apartment_id IS NULL OR object_id IS NULL
     OR apart_number IS NULL;
 
-    ALTER TABLE house_types ADD PRIMARY KEY (house_type_id);
-
-    ALTER TABLE apartment_types ADD PRIMARY KEY (apartment_type_id);
-
     ALTER TABLE reestr_objects_rc64 ADD PRIMARY KEY (object_id);
 
     ALTER TABLE adm_hierarchy_rc64 ADD PRIMARY KEY (adm_h_id);
@@ -45,6 +41,11 @@ BEGIN
     ON addr_objects_rc64
     USING btree
     (LOWER(addr_name));
+
+    CREATE INDEX i_adm_hierarchy_rc64_parent_object_id
+    ON adm_hierarchy_rc64
+    USING btree
+    (parent_object_id);
 
 END; $$
 
