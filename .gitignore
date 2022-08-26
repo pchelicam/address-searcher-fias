@@ -23,6 +23,7 @@ bin/
 *.iml
 *.ipr
 /src/main/java/ru/pchelicam/services/XmlHandlerAdmHierarchy.java
+/src/main/java/ru/pchelicam/controllers/FlywayController.java
 src/main/resources/database/migration/draft_create_tables_with_partitioning.sql
 out/
 !**/src/main/**/out/
