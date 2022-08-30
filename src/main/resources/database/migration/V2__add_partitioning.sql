@@ -35,6 +35,17 @@ BEGIN
         constr_n := concat('adm_hierarchy_rc',region_code,'_check');
         EXECUTE format('CREATE TABLE %s (CONSTRAINT %s CHECK(region_code = %s) ) INHERITS (%s);', table_n, constr_n, region_code, 'adm_hierarchy');
 
+        table_n := concat('addr_objects_rc', region_code);
+        constr_n := concat('addr_objects_rc',region_code,'_check');
+        EXECUTE format('CREATE TABLE %s (CONSTRAINT %s CHECK(region_code = %s) ) INHERITS (%s);', table_n, constr_n, region_code, 'addr_objects');
+
+        table_n := concat('houses_rc', region_code);
+        constr_n := concat('houses_rc',region_code,'_check');
+        EXECUTE format('CREATE TABLE %s (CONSTRAINT %s CHECK(region_code = %s) ) INHERITS (%s);', table_n, constr_n, region_code, 'houses');
+
+        table_n := concat('apartments_rc', region_code);
+        constr_n := concat('apartments_rc',region_code,'_check');
+        EXECUTE format('CREATE TABLE %s (CONSTRAINT %s CHECK(region_code = %s) ) INHERITS (%s);', table_n, constr_n, region_code, 'houses');
 
     END LOOP;
 END; $$;
