@@ -36,8 +36,8 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Instant start = Instant.now();
-        //xmlParserManager.manageDataInsert();
+//        Instant start = Instant.now();
+//        xmlParserManager.manageDataInsert();
 //        String corrected8String = new String("%D0%A1%D0%B0%D1%80".getBytes("Cp1252"), "Cp1251");
 //        System.out.println(URLDecoder.decode(corrected8String, StandardCharsets.UTF_8.toString()));
 //        Instant end = Instant.now();

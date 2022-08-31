@@ -45,7 +45,7 @@ BEGIN
 
         table_n := concat('apartments_rc', region_code);
         constr_n := concat('apartments_rc',region_code,'_check');
-        EXECUTE format('CREATE TABLE %s (CONSTRAINT %s CHECK(region_code = %s) ) INHERITS (%s);', table_n, constr_n, region_code, 'houses');
+        EXECUTE format('CREATE TABLE %s (CONSTRAINT %s CHECK(region_code = %s) ) INHERITS (%s);', table_n, constr_n, region_code, 'apartments');
 
     END LOOP;
 END; $$;

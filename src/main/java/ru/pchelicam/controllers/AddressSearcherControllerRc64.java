@@ -72,13 +72,13 @@ public class AddressSearcherControllerRc64 {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping(value = "/createdb")
-    public ResponseEntity<?> dropDBAndCreateNewDB() {
-        Flyway.configure()
-                .configuration(flyway.getConfiguration())
-                .load()
-                .migrate();
-        return ResponseEntity.noContent().build();
-    }
+//    @GetMapping(value = "/createdb")
+//    public ResponseEntity<?> dropDBAndCreateNewDB() {
+//        Flyway.configure()
+//                .configuration(flyway.getConfiguration())
+//                .load()
+//                .migrate();
+//        return ResponseEntity.noContent().build();
+//    }
 
 }

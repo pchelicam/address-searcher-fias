@@ -23,6 +23,8 @@ public class XmlParserManager {
         SAXParser parser = factory.newSAXParser();
         Short regionCode = parseRegionCode("E:/gar_xml/64");
 
+        callBeforeFullImport(regionCode);
+
         XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(System.getProperty("user.dir")
                 + "/src/main/resources/database/insert_queries/insert_into_house_types.sql");
         parser.parse(new File("E:/gar_xml/AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
@@ -56,14 +58,26 @@ public class XmlParserManager {
                 regionCode);
         parser.parse(new File("E:/gar_xml/64/AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
 
-        callDeleteExtraData();
+        callAfterFullImport(regionCode);
     }
 
-    private void callDeleteExtraData() throws IOException, SQLException {
+    private void callBeforeFullImport(Short regionCode) throws IOException, SQLException {
         Connection connection = DBCPDataSource.getConnection();
         CallableStatement callableStatement = connection.prepareCall(
                 readFile(System.getProperty("user.dir")
-                        + "/src/main/resources/database/call_procedures_queries/call_delete_extra_data.sql"));
+                        + "/src/main/resources/database/call_procedures_queries/call_before_full_import.sql"));
+        callableStatement.setShort(1, regionCode);
+        callableStatement.execute();
+        callableStatement.close();
+        connection.close();
+    }
+
+    private void callAfterFullImport(Short regionCode) throws IOException, SQLException {
+        Connection connection = DBCPDataSource.getConnection();
+        CallableStatement callableStatement = connection.prepareCall(
+                readFile(System.getProperty("user.dir")
+                        + "/src/main/resources/database/call_procedures_queries/call_after_full_import.sql"));
+        callableStatement.setShort(1, regionCode);
         callableStatement.execute();
         callableStatement.close();
         connection.close();

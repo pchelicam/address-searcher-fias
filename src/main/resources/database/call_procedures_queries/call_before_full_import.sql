@@ -1,0 +1,1 @@
+CALL before_full_import( ? )
