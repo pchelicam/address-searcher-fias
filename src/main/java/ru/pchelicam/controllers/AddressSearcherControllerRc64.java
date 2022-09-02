@@ -26,17 +26,14 @@ public class AddressSearcherControllerRc64 {
     private final AddressObjectsRc64Repository addressObjectsRc64Repository;
     private final HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository;
     private final ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository;
-    private final Flyway flyway;
 
     @Autowired
     public AddressSearcherControllerRc64(AddressObjectsRc64Repository addressObjectsRc64Repository,
                                          HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository,
-                                         ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository,
-                                         Flyway flyway) {
+                                         ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository) {
         this.addressObjectsRc64Repository = addressObjectsRc64Repository;
         this.housesWithHouseTypeNamesRepository = housesWithHouseTypeNamesRepository;
         this.apartmentsWithApartmentTypeNamesRepository = apartmentsWithApartmentTypeNamesRepository;
-        this.flyway = flyway;
     }
 
     @GetMapping(value = "/64/locality")

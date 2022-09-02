@@ -1,1 +1,1 @@
-INSERT INTO apartments_rc64 (apartment_id, object_id, apart_type, apart_number, region_code) VALUES (?, ?, ?, ?, ?)
+INSERT INTO apartments_rcXXX (apartment_id, object_id, apart_type, apart_number, region_code) VALUES (?, ?, ?, ?, ?)

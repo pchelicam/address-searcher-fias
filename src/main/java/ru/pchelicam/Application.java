@@ -4,16 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import ru.pchelicam.services.XmlParserManager;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
 
 @SpringBootApplication
 //@EnableTransactionManagement
@@ -37,7 +28,7 @@ public class Application implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 //        Instant start = Instant.now();
-//        xmlParserManager.manageDataInsert();
+        xmlParserManager.manageDataInsert();
 //        String corrected8String = new String("%D0%A1%D0%B0%D1%80".getBytes("Cp1252"), "Cp1251");
 //        System.out.println(URLDecoder.decode(corrected8String, StandardCharsets.UTF_8.toString()));
 //        Instant end = Instant.now();

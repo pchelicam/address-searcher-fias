@@ -1,1 +1,1 @@
-INSERT INTO adm_hierarchy_rc64 (adm_h_id, object_id, parent_object_id, full_path, region_code) VALUES (?, ?, ?, ?, ?)
+INSERT INTO adm_hierarchy_rcXXX (adm_h_id, object_id, parent_object_id, full_path, region_code) VALUES (?, ?, ?, ?, ?)

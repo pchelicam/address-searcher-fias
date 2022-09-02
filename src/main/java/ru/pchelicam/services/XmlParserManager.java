@@ -10,10 +10,12 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.Objects;
 
 @Service
 public class XmlParserManager {
@@ -24,37 +26,43 @@ public class XmlParserManager {
         Short regionCode = parseRegionCode("E:/gar_xml/64");
 
         callBeforeFullImport(regionCode);
-
-        XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(System.getProperty("user.dir")
-                + "/src/main/resources/database/insert_queries/insert_into_house_types.sql");
+        XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(
+                Objects.requireNonNull(
+                        XmlParserManager.class.getResource("/database/insert_queries/insert_into_house_types.sql")).getPath());
         parser.parse(new File("E:/gar_xml/AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
 
-        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(System.getProperty("user.dir")
-                + "/src/main/resources/database/insert_queries/insert_into_apartment_types.sql");
+        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
+                Objects.requireNonNull(
+                        XmlParserManager.class.getResource("/database/insert_queries/insert_into_apartment_types.sql")).getPath());
         parser.parse(new File("E:/gar_xml/AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
 
-        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(System.getProperty("user.dir")
-                + "/src/main/resources/database/insert_queries/insert_into_reestr_objects.sql",
+        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
+                Objects.requireNonNull(
+                        XmlParserManager.class.getResource("/database/insert_queries/insert_into_reestr_objects.sql")).getPath(),
                 regionCode);
         parser.parse(new File("E:/gar_xml/64/AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
 
-        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(System.getProperty("user.dir")
-                + "/src/main/resources/database/insert_queries/insert_into_adm_hierarchy.sql",
+        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
+                Objects.requireNonNull(
+                        XmlParserManager.class.getResource("/database/insert_queries/insert_into_adm_hierarchy.sql")).getPath(),
                 regionCode);
         parser.parse(new File("E:/gar_xml/64/AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
 
-        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(System.getProperty("user.dir")
-                + "/src/main/resources/database/insert_queries/insert_into_addr_objects.sql",
+        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
+                Objects.requireNonNull(
+                        XmlParserManager.class.getResource("/database/insert_queries/insert_into_addr_objects.sql")).getPath(),
                 regionCode);
         parser.parse(new File("E:/gar_xml/64/AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
 
-        XmlParserHouses xmlParserHouses = new XmlParserHouses(System.getProperty("user.dir")
-                + "/src/main/resources/database/insert_queries/insert_into_houses.sql",
+        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+                Objects.requireNonNull(
+                        XmlParserManager.class.getResource("/database/insert_queries/insert_into_houses.sql")).getPath(),
                 regionCode);
         parser.parse(new File("E:/gar_xml/64/AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
 
-        XmlParserApartments xmlParserApartments = new XmlParserApartments(System.getProperty("user.dir")
-                + "/src/main/resources/database/insert_queries/insert_into_apartments.sql",
+        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+                Objects.requireNonNull(
+                        XmlParserManager.class.getResource("/database/insert_queries/insert_into_apartments.sql")).getPath(),
                 regionCode);
         parser.parse(new File("E:/gar_xml/64/AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
 
@@ -64,8 +72,9 @@ public class XmlParserManager {
     private void callBeforeFullImport(Short regionCode) throws IOException, SQLException {
         Connection connection = DBCPDataSource.getConnection();
         CallableStatement callableStatement = connection.prepareCall(
-                readFile(System.getProperty("user.dir")
-                        + "/src/main/resources/database/call_procedures_queries/call_before_full_import.sql"));
+                readFile(Objects.requireNonNull(
+                                XmlParserManager.class.getResource("/database/call_procedures_queries/call_before_full_import.sql"))
+                        .getPath()));
         callableStatement.setShort(1, regionCode);
         callableStatement.execute();
         callableStatement.close();
@@ -75,8 +84,9 @@ public class XmlParserManager {
     private void callAfterFullImport(Short regionCode) throws IOException, SQLException {
         Connection connection = DBCPDataSource.getConnection();
         CallableStatement callableStatement = connection.prepareCall(
-                readFile(System.getProperty("user.dir")
-                        + "/src/main/resources/database/call_procedures_queries/call_after_full_import.sql"));
+                readFile(Objects.requireNonNull(
+                                XmlParserManager.class.getResource("/database/call_procedures_queries/call_after_full_import.sql"))
+                        .getPath()));
         callableStatement.setShort(1, regionCode);
         callableStatement.execute();
         callableStatement.close();
@@ -93,6 +103,7 @@ public class XmlParserManager {
                 Paths.get(pathToXmlData)
                         .getFileName().toString());
     }
+
     // TODO: rename fields
     private static class XmlParserHouseTypes extends DefaultHandler {
 
@@ -238,7 +249,7 @@ public class XmlParserManager {
 
         private void init() throws SQLException, IOException {
             connection = DBCPDataSource.getConnection();
-            preparedStatement = connection.prepareStatement(readFile(fileName));
+            preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
@@ -303,7 +314,7 @@ public class XmlParserManager {
 
         private void init() throws SQLException, IOException {
             connection = DBCPDataSource.getConnection();
-            preparedStatement = connection.prepareStatement(readFile(fileName));
+            preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
@@ -382,7 +393,7 @@ public class XmlParserManager {
 
         private void init() throws SQLException, IOException {
             connection = DBCPDataSource.getConnection();
-            preparedStatement = connection.prepareStatement(readFile(fileName));
+            preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
@@ -461,7 +472,7 @@ public class XmlParserManager {
 
         private void init() throws SQLException, IOException {
             connection = DBCPDataSource.getConnection();
-            preparedStatement = connection.prepareStatement(readFile(fileName));
+            preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
@@ -538,7 +549,7 @@ public class XmlParserManager {
 
         private void init() throws SQLException, IOException {
             connection = DBCPDataSource.getConnection();
-            preparedStatement = connection.prepareStatement(readFile(fileName));
+            preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
