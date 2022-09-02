@@ -1,4 +1,4 @@
-package ru.pchelicam.entities.rc64.dao;
+package ru.pchelicam.entities.dao;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,8 +6,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "houses_rc64")
-public class HousesRc64 {
+@Table(name = "houses")
+public class Houses {
 
     @Id
     @Column(name = "house_id")

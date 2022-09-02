@@ -1,4 +1,4 @@
-package ru.pchelicam.entities.rc64.dao;
+package ru.pchelicam.entities.dao;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,8 +6,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "adm_hierarchy_rc64")
-public class AdmHierarchyRc64 {
+@Table(name = "adm_hierarchy")
+public class AdmHierarchy {
 
     @Id
     @Column(name = "adm_h_id")

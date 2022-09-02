@@ -1,4 +1,4 @@
-package ru.pchelicam.entities.rc64.dao;
+package ru.pchelicam.entities.dao;
 
 import javax.persistence.*;
 
@@ -19,14 +19,17 @@ import javax.persistence.*;
 @NamedNativeQuery(
         name = "HousesWithHouseTypeNames.getHousesWithHouseTypeNames",
         query = "SELECT h.object_id, ro.object_guid, h.house_num, ht.house_type_name\n" +
-                "FROM {h-schema}houses_rc64 h\n" +
-                "JOIN {h-schema}reestr_objects_rc64 ro\n" +
+                "FROM {h-schema}houses h\n" +
+                "JOIN {h-schema}reestr_objects ro\n" +
                 "ON h.object_id = ro.object_id\n" +
-                "JOIN {h-schema}adm_hierarchy_rc64 ah\n" +
+                "JOIN {h-schema}adm_hierarchy ah\n" +
                 "ON h.object_id = ah.object_id\n" +
                 "JOIN {h-schema}house_types ht\n" +
                 "ON h.house_type = ht.house_type_id\n" +
-                "WHERE ah.parent_object_id = :parentObjectId",
+                "WHERE h.region_code = :regionCode\n" +
+                "AND ro.region_code = :regionCode\n" +
+                "AND ah.region_code = :regionCode\n" +
+                "AND ah.parent_object_id = :parentObjectId",
         resultSetMapping = "houseWithHouseTypeNamesMapping",
         resultClass = HousesWithHouseTypeNames.class
 )

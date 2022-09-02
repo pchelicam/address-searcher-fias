@@ -1,4 +1,4 @@
-package ru.pchelicam.entities.rc64.dao;
+package ru.pchelicam.entities.dao;
 
 import javax.persistence.*;
 
@@ -19,14 +19,17 @@ import javax.persistence.*;
 @NamedNativeQuery(
         name = "ApartmentsWithApartmentTypeNames.getApartmentsWithApartmentTypeNames",
         query = "SELECT ap.object_id, ro.object_guid, ap.apart_number, apt.apartment_type_name\n" +
-                "FROM {h-schema}apartments_rc64 ap\n" +
-                "JOIN {h-schema}reestr_objects_rc64 ro\n" +
+                "FROM {h-schema}apartments ap\n" +
+                "JOIN {h-schema}reestr_objects ro\n" +
                 "ON ap.object_id = ro.object_id\n" +
-                "JOIN {h-schema}adm_hierarchy_rc64 ah\n" +
+                "JOIN {h-schema}adm_hierarchy ah\n" +
                 "ON ap.object_id = ah.object_id\n" +
                 "JOIN {h-schema}apartment_types apt\n" +
                 "ON ap.apart_type = apt.apartment_type_id\n" +
-                "WHERE ah.parent_object_id = :parentObjectId\n" +
+                "WHERE ap.region_code = :regionCode\n" +
+                "AND ro.region_code = :regionCode\n" +
+                "AND ah.region_code = :regionCode\n" +
+                "AND ah.parent_object_id = :parentObjectId\n" +
                 "ORDER BY ap.apart_number",
         resultSetMapping = "apartmentsWithApartmentTypeNamesMapping",
         resultClass = ApartmentsWithApartmentTypeNames.class

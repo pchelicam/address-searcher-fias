@@ -1,4 +1,4 @@
-package ru.pchelicam.entities.rc64.dto;
+package ru.pchelicam.entities.dto;
 
 public class ApartmentDTO {
 
