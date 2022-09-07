@@ -43,7 +43,7 @@ public class AddressSearcherController {
     }
 
     @GetMapping(value = "/street")
-    public List<StreetDTO> getStreets(@RequestParam(name = "regionCode") Short regionCode,
+    public List<StreetDTO> getStreets(    @RequestParam(name = "regionCode") Short regionCode,
                                           @RequestParam Long localityId,
                                           @RequestParam(name = "name") String streetName) {
         List<AddressObjects> addressObjects = addressObjectsRepository.findStreetByLocalityIdAndStreetName(regionCode, localityId, streetName);

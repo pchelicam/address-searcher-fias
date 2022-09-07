@@ -1,5 +1,3 @@
-CREATE SCHEMA IF NOT EXISTS fias;
-
 CREATE TABLE house_types (
     house_type_id INTEGER PRIMARY KEY,
     house_type_name VARCHAR(50),

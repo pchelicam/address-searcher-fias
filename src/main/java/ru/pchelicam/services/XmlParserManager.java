@@ -1,9 +1,11 @@
 package ru.pchelicam.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import ru.pchelicam.repositories.AddressSearcherConfigRepository;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -20,7 +22,16 @@ import java.util.Objects;
 @Service
 public class XmlParserManager {
 
+    private final AddressSearcherConfigRepository addressSearcherConfigRepository;
+
+    @Autowired
+    public XmlParserManager(AddressSearcherConfigRepository addressSearcherConfigRepository) {
+        this.addressSearcherConfigRepository = addressSearcherConfigRepository;
+    }
+
     public void manageDataInsert() throws ParserConfigurationException, SAXException, IOException, SQLException {
+        String pathToXmlData = addressSearcherConfigRepository.findByPropertyName("path_to_xml_data").getPropertyValue();
+
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
         Short regionCode = parseRegionCode("E:/gar_xml/64");
