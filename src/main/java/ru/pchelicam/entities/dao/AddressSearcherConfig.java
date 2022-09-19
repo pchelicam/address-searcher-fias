@@ -19,6 +19,9 @@ public class AddressSearcherConfig {
     @Column(name = "property_value")
     private String propertyValue;
 
+    public AddressSearcherConfig() {
+    }
+
     public AddressSearcherConfig(String propertyName, String propertyValue) {
         this.propertyName = propertyName;
         this.propertyValue = propertyValue;
