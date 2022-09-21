@@ -4,36 +4,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.pchelicam.repositories.AddressSearcherConfigRepository;
 
+import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.util.Objects;
-import java.util.Properties;
 
 @Service
 public class XmlParserManager {
 
+    private final DataSource dataSource;
     private final AddressSearcherConfigRepository addressSearcherConfigRepository;
 
     @Autowired
-    public XmlParserManager(AddressSearcherConfigRepository addressSearcherConfigRepository) {
+    public XmlParserManager(AddressSearcherConfigRepository addressSearcherConfigRepository, DataSource dataSource) {
         this.addressSearcherConfigRepository = addressSearcherConfigRepository;
+        this.dataSource = dataSource;
     }
 
     public void manageDataInsert(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException {
@@ -46,31 +43,31 @@ public class XmlParserManager {
                 new ClassPathResource("database/insert_queries/insert_into_house_types.sql").getFile().getAbsolutePath());
         parser.parse(new File(pathToXmlData + "/" + "AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
 
-        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
-                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
-        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
-
-        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
-                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
-
-        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
-                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
-
-        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
-                new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
-
-        XmlParserHouses xmlParserHouses = new XmlParserHouses(
-                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
-
-        XmlParserApartments xmlParserApartments = new XmlParserApartments(
-                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
-
-        callAfterFullImport(regionCode);
+//        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
+//                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
+//        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
+//
+//        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
+//                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
+//
+//        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
+//                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
+//
+//        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
+//                new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
+//
+//        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+//                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
+//
+//        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+//                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+//
+//        callAfterFullImport(regionCode);
     }
 
     public void manageReloadingData(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException, URISyntaxException {
@@ -150,7 +147,7 @@ public class XmlParserManager {
 
 
     // TODO: rename fields
-    private static class XmlParserHouseTypes extends DefaultHandler {
+    private  class XmlParserHouseTypes extends DefaultHandler {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
@@ -163,12 +160,13 @@ public class XmlParserManager {
         }
 
         private void init() throws SQLException, IOException {
-            connection = DBCPDataSource.getConnection();
+            //connection = DBCPDataSource.getConnection();
+            connection = XmlParserManager.this.dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName));
             amountOfBatches = 0;
         }
 
-        private static String readFile(String path) throws IOException {
+        private String readFile(String path) throws IOException {
             byte[] encoded = Files.readAllBytes(Paths.get(path));
             return new String(encoded, StandardCharsets.UTF_8);
         }

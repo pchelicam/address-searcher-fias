@@ -23,9 +23,9 @@ dependencies {
 
     implementation 'commons-dbcp:commons-dbcp:1.4'
 
-    testCompileOnly 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-api'
 }
 
 tasks.named('test') {

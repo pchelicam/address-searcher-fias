@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/fiasdb
+    url: jdbc:postgresql://localhost:5432/fiasdb?currentSchema=fias
     username: postgres
     password: postgres
-#    schema: fias
+#    driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: false
     open-in-view: false
@@ -11,11 +11,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: fias
-        #ddl-auto: validate
-#        generate-statistics: true
-#        jdbc:
-#          batch_size: 30
-#        order_inserts: true
   flyway:
     enabled: true
     schemas: fias
@@ -23,11 +18,7 @@ spring:
     user: postgres
     password: postgres
     baseline-on-migrate: true
-    #validate-on-migrate: true
-    #datasources:
-    #  default:
     locations: classpath:database/migration
-
 server:
   servlet:
     contextPath: /addressSearcher
