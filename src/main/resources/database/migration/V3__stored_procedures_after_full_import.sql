@@ -27,6 +27,10 @@ BEGIN
     EXECUTE format('DELETE FROM apartments_rc%s '
                    'WHERE apartment_id IS NULL OR object_id IS NULL OR apart_number IS NULL;', _region_code);
 
+    EXECUTE 'ALTER TABLE house_types ADD PRIMARY KEY (house_type_id);';
+
+    EXECUTE 'ALTER TABLE apartment_types ADD PRIMARY KEY (apartment_type_id);';
+
     EXECUTE format('ALTER TABLE reestr_objects_rc%s ADD PRIMARY KEY (object_id);', _region_code);
 
     EXECUTE format('ALTER TABLE adm_hierarchy_rc%s ADD PRIMARY KEY (adm_h_id);', _region_code);

@@ -36,18 +36,12 @@ public class XmlParserManager {
         this.addressSearcherConfigRepository = addressSearcherConfigRepository;
     }
 
-    public void manageDataInsert(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException, URISyntaxException {
+    public void manageDataInsert(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException {
         String pathToXmlData = addressSearcherConfigRepository.findByPropertyName("path_to_xml_data").getPropertyValue();
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
-        //Short regionCode = parseRegionCode("E:/gar_xml/64");
 
-        callBeforeFullImport(regionCode);
-
-//        XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(
-//                Objects.requireNonNull(
-//                        XmlParserManager.class.getResource("/database/insert_queries/insert_into_house_types.sql")).getPath());
         XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(
                 new ClassPathResource("database/insert_queries/insert_into_house_types.sql").getFile().getAbsolutePath());
         parser.parse(new File(pathToXmlData + "/" + "AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
@@ -79,23 +73,64 @@ public class XmlParserManager {
         callAfterFullImport(regionCode);
     }
 
+    public void manageReloadingData(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException, URISyntaxException {
+        String pathToXmlData = addressSearcherConfigRepository.findByPropertyName("path_to_xml_data").getPropertyValue();
+
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParser parser = factory.newSAXParser();
+
+        callBeforeFullImport(regionCode);
+
+        callTruncateAllTables(regionCode);
+
+        XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(
+                new ClassPathResource("database/insert_queries/insert_into_house_types.sql").getFile().getAbsolutePath());
+        parser.parse(new File(pathToXmlData + "/" + "AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
+
+        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
+                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
+        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
+
+        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
+                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
+
+        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
+                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
+
+        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
+                new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
+
+        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
+
+        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+
+        callAfterFullImport(regionCode);
+    }
+
+    private void callTruncateAllTables(Short regionCode) throws IOException, SQLException {
+        Connection connection = DBCPDataSource.getConnection();
+        Resource resource = new ClassPathResource("/database/call_procedures_queries/call_truncate_all_tables.sql");
+        byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
+        CallableStatement callableStatement = connection.prepareCall(new String(bytes));
+        callableStatement.setShort(1, regionCode);
+        callableStatement.execute();
+        callableStatement.close();
+        connection.close();
+    }
+
     private void callBeforeFullImport(Short regionCode) throws IOException, SQLException, URISyntaxException {
         Connection connection = DBCPDataSource.getConnection();
         Resource resource = new ClassPathResource("database/call_procedures_queries/call_before_full_import.sql");
         byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
 
         CallableStatement callableStatement = connection.prepareCall(new String(bytes));
-//        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-//
-//        CallableStatement callableStatement = connection.prepareCall(
-//                readFile(Paths.get(Objects.requireNonNull(
-//                        classloader.getResourceAsStream("/database/call_procedures_queries/call_before_full_import.sql"))));
-//                readFile(Paths.get(Objects.requireNonNull(
-//                        classloader.getResource("/database/call_procedures_queries/call_before_full_import.sql")).getPath()).toString()));
-//                readFile(Objects.requireNonNull(
-//                                XmlParserManager.class.getResource("/database/call_procedures_queries/call_before_full_import.sql"))
-//                        .getPath()));
-
         callableStatement.setShort(1, regionCode);
         callableStatement.execute();
         callableStatement.close();
@@ -106,28 +141,13 @@ public class XmlParserManager {
         Connection connection = DBCPDataSource.getConnection();
         Resource resource = new ClassPathResource("/database/call_procedures_queries/call_after_full_import.sql");
         byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
-
         CallableStatement callableStatement = connection.prepareCall(new String(bytes));
-//        CallableStatement callableStatement = connection.prepareCall(
-//                readFile(Objects.requireNonNull(
-//                                XmlParserManager.class.getResource("/database/call_procedures_queries/call_after_full_import.sql"))
-//                        .getPath()));
         callableStatement.setShort(1, regionCode);
         callableStatement.execute();
         callableStatement.close();
         connection.close();
     }
 
-    private static String readFile(String path) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, StandardCharsets.UTF_8);
-    }
-
-    private Short parseRegionCode(String pathToXmlData) {
-        return Short.parseShort(
-                Paths.get(pathToXmlData)
-                        .getFileName().toString());
-    }
 
     // TODO: rename fields
     private static class XmlParserHouseTypes extends DefaultHandler {

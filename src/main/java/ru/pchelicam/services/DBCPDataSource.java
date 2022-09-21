@@ -10,7 +10,7 @@ public class DBCPDataSource {
     private static BasicDataSource ds = new BasicDataSource();
 
     static {
-        ds.setUrl("jdbc:postgresql://localhost:5432/fias?currentSchema=fias");
+        ds.setUrl("jdbc:postgresql://localhost:5432/fiasdb?currentSchema=fias");
         ds.setUsername("postgres");
         ds.setPassword("postgres");
         ds.setMinIdle(5);

@@ -1,11 +1,11 @@
 CREATE TABLE house_types (
-    house_type_id INTEGER PRIMARY KEY,
+    house_type_id INTEGER,
     house_type_name VARCHAR(50),
     house_type_shortname VARCHAR(50)
 );
 
 CREATE TABLE apartment_types (
-    apartment_type_id INTEGER PRIMARY KEY,
+    apartment_type_id INTEGER,
     apartment_type_name VARCHAR(50),
     apartment_type_shortname VARCHAR(50)
 );
