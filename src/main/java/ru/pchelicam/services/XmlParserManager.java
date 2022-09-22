@@ -43,31 +43,31 @@ public class XmlParserManager {
                 new ClassPathResource("database/insert_queries/insert_into_house_types.sql").getFile().getAbsolutePath());
         parser.parse(new File(pathToXmlData + "/" + "AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
 
-//        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
-//                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
-//        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
-//
-//        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
-//                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
-//
-//        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
-//                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
-//
-//        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
-//                new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
-//
-//        XmlParserHouses xmlParserHouses = new XmlParserHouses(
-//                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
-//
-//        XmlParserApartments xmlParserApartments = new XmlParserApartments(
-//                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
-//
-//        callAfterFullImport(regionCode);
+        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
+                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
+        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
+
+        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
+                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
+
+        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
+                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
+
+        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
+                new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
+
+        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
+
+        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+
+        callAfterFullImport(regionCode);
     }
 
     public void manageReloadingData(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException, URISyntaxException {
@@ -112,7 +112,7 @@ public class XmlParserManager {
     }
 
     private void callTruncateAllTables(Short regionCode) throws IOException, SQLException {
-        Connection connection = DBCPDataSource.getConnection();
+        Connection connection = dataSource.getConnection();
         Resource resource = new ClassPathResource("/database/call_procedures_queries/call_truncate_all_tables.sql");
         byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
         CallableStatement callableStatement = connection.prepareCall(new String(bytes));
@@ -123,7 +123,7 @@ public class XmlParserManager {
     }
 
     private void callBeforeFullImport(Short regionCode) throws IOException, SQLException, URISyntaxException {
-        Connection connection = DBCPDataSource.getConnection();
+        Connection connection = dataSource.getConnection();
         Resource resource = new ClassPathResource("database/call_procedures_queries/call_before_full_import.sql");
         byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
 
@@ -135,7 +135,7 @@ public class XmlParserManager {
     }
 
     private void callAfterFullImport(Short regionCode) throws IOException, SQLException {
-        Connection connection = DBCPDataSource.getConnection();
+        Connection connection = dataSource.getConnection();
         Resource resource = new ClassPathResource("/database/call_procedures_queries/call_after_full_import.sql");
         byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
         CallableStatement callableStatement = connection.prepareCall(new String(bytes));
@@ -145,9 +145,7 @@ public class XmlParserManager {
         connection.close();
     }
 
-
-    // TODO: rename fields
-    private  class XmlParserHouseTypes extends DefaultHandler {
+    private class XmlParserHouseTypes extends DefaultHandler {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
@@ -160,7 +158,6 @@ public class XmlParserManager {
         }
 
         private void init() throws SQLException, IOException {
-            //connection = DBCPDataSource.getConnection();
             connection = XmlParserManager.this.dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName));
             amountOfBatches = 0;
@@ -212,7 +209,7 @@ public class XmlParserManager {
 
     }
 
-    private static class XmlParserApartmentTypes extends DefaultHandler {
+    private class XmlParserApartmentTypes extends DefaultHandler {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
@@ -225,12 +222,12 @@ public class XmlParserManager {
         }
 
         private void init() throws SQLException, IOException {
-            connection = DBCPDataSource.getConnection();
+            connection = XmlParserManager.this.dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName));
             amountOfBatches = 0;
         }
 
-        private static String readFile(String path) throws IOException {
+        private String readFile(String path) throws IOException {
             byte[] encoded = Files.readAllBytes(Paths.get(path));
             return new String(encoded, StandardCharsets.UTF_8);
         }
@@ -276,7 +273,7 @@ public class XmlParserManager {
 
     }
 
-    private static class XmlParserReestrObjects extends DefaultHandler {
+    private class XmlParserReestrObjects extends DefaultHandler {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
@@ -291,12 +288,12 @@ public class XmlParserManager {
         }
 
         private void init() throws SQLException, IOException {
-            connection = DBCPDataSource.getConnection();
+            connection = XmlParserManager.this.dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
-        private static String readFile(String path) throws IOException {
+        private String readFile(String path) throws IOException {
             byte[] encoded = Files.readAllBytes(Paths.get(path));
             return new String(encoded, StandardCharsets.UTF_8);
         }
@@ -341,7 +338,7 @@ public class XmlParserManager {
 
     }
 
-    private static class XmlParserAdmHierarchy extends DefaultHandler {
+    private class XmlParserAdmHierarchy extends DefaultHandler {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
@@ -356,12 +353,12 @@ public class XmlParserManager {
         }
 
         private void init() throws SQLException, IOException {
-            connection = DBCPDataSource.getConnection();
+            connection = XmlParserManager.this.dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
-        private static String readFile(String path) throws IOException {
+        private String readFile(String path) throws IOException {
             byte[] encoded = Files.readAllBytes(Paths.get(path));
             return new String(encoded, StandardCharsets.UTF_8);
         }
@@ -420,7 +417,7 @@ public class XmlParserManager {
 
     }
 
-    private static class XmlParserAddrObjects extends DefaultHandler {
+    private class XmlParserAddrObjects extends DefaultHandler {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
@@ -435,12 +432,12 @@ public class XmlParserManager {
         }
 
         private void init() throws SQLException, IOException {
-            connection = DBCPDataSource.getConnection();
+            connection = XmlParserManager.this.dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
-        private static String readFile(String path) throws IOException {
+        private String readFile(String path) throws IOException {
             byte[] encoded = Files.readAllBytes(Paths.get(path));
             return new String(encoded, StandardCharsets.UTF_8);
         }
@@ -499,7 +496,7 @@ public class XmlParserManager {
 
     }
 
-    private static class XmlParserHouses extends DefaultHandler {
+    private class XmlParserHouses extends DefaultHandler {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
@@ -514,12 +511,12 @@ public class XmlParserManager {
         }
 
         private void init() throws SQLException, IOException {
-            connection = DBCPDataSource.getConnection();
+            connection = XmlParserManager.this.dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
-        private static String readFile(String path) throws IOException {
+        private String readFile(String path) throws IOException {
             byte[] encoded = Files.readAllBytes(Paths.get(path));
             return new String(encoded, StandardCharsets.UTF_8);
         }
@@ -576,7 +573,7 @@ public class XmlParserManager {
 
     }
 
-    private static class XmlParserApartments extends DefaultHandler {
+    private class XmlParserApartments extends DefaultHandler {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
@@ -591,12 +588,12 @@ public class XmlParserManager {
         }
 
         private void init() throws SQLException, IOException {
-            connection = DBCPDataSource.getConnection();
+            connection = XmlParserManager.this.dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
             amountOfBatches = 0;
         }
 
-        private static String readFile(String path) throws IOException {
+        private String readFile(String path) throws IOException {
             byte[] encoded = Files.readAllBytes(Paths.get(path));
             return new String(encoded, StandardCharsets.UTF_8);
         }
