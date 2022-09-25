@@ -5,3 +5,5 @@ CREATE TABLE address_searcher_config (
 );
 
 INSERT INTO address_searcher_config (property_name, property_value) VALUES ('path_to_xml_data', 'E:/gar_xml/');
+
+INSERT INTO address_searcher_config (property_name, property_value) VALUES ('path_to_xml_data_updates', 'E:/gar_delta_xml/');

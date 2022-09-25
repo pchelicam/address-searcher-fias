@@ -2,6 +2,7 @@ package ru.pchelicam.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.pchelicam.entities.dao.AddressSearcherConfig;
@@ -23,7 +24,7 @@ public class ConfigController {
         this.addressSearcherConfigRepository = addressSearcherConfigRepository;
     }
 
-    @GetMapping(value = "/config")
+    @PostMapping(value = "/config")
     public List<AddressSearcherConfigDTO> setUpConfiguration(@Valid @RequestBody List<AddressSearcherConfigDTO> addressSearcherConfigDTO) {
         List<AddressSearcherConfig> addressSearcherConfigList = addressSearcherConfigDTO.stream()
                 .map(prop -> new AddressSearcherConfig(prop.getName(), prop.getValue()))

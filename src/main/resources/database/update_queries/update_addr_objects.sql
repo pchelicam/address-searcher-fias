@@ -4,4 +4,4 @@ SET object_id = ?,
     type_name = ?,
     obj_level = ?,
     region_code = ?
-WHERE addr_objects_rcXXX.addr_obj_id=?
+WHERE addr_obj_id=?

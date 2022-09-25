@@ -15,6 +15,7 @@ import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.ApartmentsWithApartmentTypeNamesRepository;
 import ru.pchelicam.repositories.HousesWithHouseTypeNamesRepository;
 import ru.pchelicam.services.XmlParserManager;
+import ru.pchelicam.services.XmlParserManagerUpdates;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -30,16 +31,18 @@ public class AddressSearcherController {
     private final HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository;
     private final ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository;
     private final XmlParserManager xmlParserManager;
+    private final XmlParserManagerUpdates xmlParserManagerUpdates;
 
     @Autowired
     public AddressSearcherController(AddressObjectsRepository addressObjectsRepository,
                                      HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository,
                                      ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository,
-                                     XmlParserManager xmlParserManager) {
+                                     XmlParserManager xmlParserManager, XmlParserManagerUpdates xmlParserManagerUpdates) {
         this.addressObjectsRepository = addressObjectsRepository;
         this.housesWithHouseTypeNamesRepository = housesWithHouseTypeNamesRepository;
         this.apartmentsWithApartmentTypeNamesRepository = apartmentsWithApartmentTypeNamesRepository;
         this.xmlParserManager = xmlParserManager;
+        this.xmlParserManagerUpdates = xmlParserManagerUpdates;
     }
 
     @GetMapping(value = "/database/import")
@@ -65,7 +68,12 @@ public class AddressSearcherController {
 
     @GetMapping(value = "/database/update")
     public ResponseEntity<?> updateRecords(@RequestParam(name = "regionCode") Short regionCode) {
-
+        try {
+            xmlParserManagerUpdates.manageUpdatingData(regionCode);
+        } catch (IOException | SQLException | ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(null, HttpStatus.CREATED);
     }
 

@@ -451,36 +451,46 @@ public class XmlParserManager {
             String addrName = attributes.getValue("NAME");
             String typeName = attributes.getValue("TYPENAME");
             String objLevel = attributes.getValue("LEVEL");
-            try {
-                if (addrObjId != null) {
-                    preparedStatement.setLong(1, Long.parseLong(addrObjId));
-                } else {
-                    preparedStatement.setNull(1, Types.BIGINT);
+            String prevId = attributes.getValue("PREVID");
+
+            if (prevId == null || prevId.equals("0")) {
+                try {
+                    if (addrObjId != null) {
+                        preparedStatement.setLong(1, Long.parseLong(addrObjId));
+                    } else {
+                        preparedStatement.setNull(1, Types.BIGINT);
+                    }
+                    if (objectId != null) {
+                        preparedStatement.setLong(2, Long.parseLong(objectId));
+                    } else {
+                        preparedStatement.setNull(2, Types.BIGINT);
+                    }
+                    preparedStatement.setString(3, addrName);
+                    preparedStatement.setString(4, typeName);
+                    if (objLevel != null) {
+                        preparedStatement.setShort(5, Short.parseShort(objLevel));
+                    } else {
+                        preparedStatement.setNull(5, Types.SMALLINT);
+                    }
+                    preparedStatement.setShort(6, regionCode);
+                    if (amountOfBatches == 80) {
+                        preparedStatement.executeBatch();
+                        preparedStatement.clearBatch();
+                        amountOfBatches = 0;
+                    }
+                    preparedStatement.addBatch();
+                    preparedStatement.clearParameters();
+                    amountOfBatches++;
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
-                if (objectId != null) {
-                    preparedStatement.setLong(2, Long.parseLong(objectId));
-                } else {
-                    preparedStatement.setNull(2, Types.BIGINT);
-                }
-                preparedStatement.setString(3, addrName);
-                preparedStatement.setString(4, typeName);
-                if (objLevel != null) {
-                    preparedStatement.setShort(5, Short.parseShort(objLevel));
-                } else {
-                    preparedStatement.setNull(5, Types.SMALLINT);
-                }
-                preparedStatement.setShort(6, regionCode);
-                if (amountOfBatches == 80) {
-                    preparedStatement.executeBatch();
-                    preparedStatement.clearBatch();
-                    amountOfBatches = 0;
-                }
-                preparedStatement.addBatch();
-                preparedStatement.clearParameters();
-                amountOfBatches++;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
+            else {
+
+            }
+
+
+
         }
 
         @Override

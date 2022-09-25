@@ -48,3 +48,8 @@ CREATE TABLE apartments (
     apart_number VARCHAR(50),
     region_code SMALLINT
 );
+
+CREATE TABLE addr_objects_actual_and_previous_ids (
+    previous_id BIGINT,
+    actual_id BIGINT
+);
