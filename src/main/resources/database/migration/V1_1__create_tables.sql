@@ -27,9 +27,11 @@ CREATE TABLE adm_hierarchy (
 CREATE TABLE addr_objects (
     addr_obj_id BIGINT,
     object_id BIGINT,
-    addr_name VARCHAR(250),
+    addr_obj_name VARCHAR(250),
     type_name VARCHAR(50),
     obj_level SMALLINT,
+    prev_id BIGINT,
+    addr_obj_update_date DATE,
     region_code SMALLINT
 );
 
@@ -49,7 +51,8 @@ CREATE TABLE apartments (
     region_code SMALLINT
 );
 
-CREATE TABLE addr_objects_actual_and_previous_ids (
-    previous_id BIGINT,
-    actual_id BIGINT
+CREATE TABLE addr_objects_primary_and_next_ids (
+    next_id BIGINT,
+    primary_id BIGINT,
+    region_code SMALLINT
 );

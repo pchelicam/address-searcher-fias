@@ -1,3 +1,4 @@
+.gitignore
 HELP.md
 .gradle
 build/
@@ -25,6 +26,7 @@ bin/
 /src/main/java/ru/pchelicam/services/XmlHandlerAdmHierarchy.java
 flyway_controller.txt
 src/main/resources/database/migration/draft_create_tables_with_partitioning.sql
+addr_obj_tmp.txt
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/

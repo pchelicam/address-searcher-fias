@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 @Service
 public class XmlParserManager {
@@ -39,35 +41,35 @@ public class XmlParserManager {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
 
-        XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(
-                new ClassPathResource("database/insert_queries/insert_into_house_types.sql").getFile().getAbsolutePath());
-        parser.parse(new File(pathToXmlData + "/" + "AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
-
-        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
-                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
-        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
-
-        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
-                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
-
-        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
-                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
+//        XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(
+//                new ClassPathResource("database/insert_queries/insert_into_house_types.sql").getFile().getAbsolutePath());
+//        parser.parse(new File(pathToXmlData + "/" + "AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
+//
+//        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
+//                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
+//        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
+//
+//        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
+//                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
+//
+//        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
+//                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
 
-        XmlParserHouses xmlParserHouses = new XmlParserHouses(
-                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
-
-        XmlParserApartments xmlParserApartments = new XmlParserApartments(
-                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
-
-        callAfterFullImport(regionCode);
+//        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+//                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
+//
+//        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+//                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+//
+//        callAfterFullImport(regionCode);
     }
 
     public void manageReloadingData(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException, URISyntaxException {
@@ -145,6 +147,7 @@ public class XmlParserManager {
         connection.close();
     }
 
+    // TODO: rename fields
     private class XmlParserHouseTypes extends DefaultHandler {
 
         private Connection connection;
@@ -448,49 +451,139 @@ public class XmlParserManager {
                 return;
             String addrObjId = attributes.getValue("ID");
             String objectId = attributes.getValue("OBJECTID");
-            String addrName = attributes.getValue("NAME");
+            String addrObjName = attributes.getValue("NAME");
             String typeName = attributes.getValue("TYPENAME");
             String objLevel = attributes.getValue("LEVEL");
             String prevId = attributes.getValue("PREVID");
+            String addrObjUpdateDate = attributes.getValue("UPDATEDATE");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
-            if (prevId == null || prevId.equals("0")) {
-                try {
-                    if (addrObjId != null) {
-                        preparedStatement.setLong(1, Long.parseLong(addrObjId));
-                    } else {
-                        preparedStatement.setNull(1, Types.BIGINT);
-                    }
-                    if (objectId != null) {
-                        preparedStatement.setLong(2, Long.parseLong(objectId));
-                    } else {
-                        preparedStatement.setNull(2, Types.BIGINT);
-                    }
-                    preparedStatement.setString(3, addrName);
-                    preparedStatement.setString(4, typeName);
-                    if (objLevel != null) {
-                        preparedStatement.setShort(5, Short.parseShort(objLevel));
-                    } else {
-                        preparedStatement.setNull(5, Types.SMALLINT);
-                    }
-                    preparedStatement.setShort(6, regionCode);
-                    if (amountOfBatches == 80) {
-                        preparedStatement.executeBatch();
-                        preparedStatement.clearBatch();
-                        amountOfBatches = 0;
-                    }
-                    preparedStatement.addBatch();
-                    preparedStatement.clearParameters();
-                    amountOfBatches++;
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+            //if (prevId == null || prevId.equals("0")) {
+            try {
+                if (addrObjId != null) {
+                    preparedStatement.setLong(1, Long.parseLong(addrObjId));
+                } else {
+                    preparedStatement.setNull(1, Types.BIGINT);
                 }
+                if (objectId != null) {
+                    preparedStatement.setLong(2, Long.parseLong(objectId));
+                } else {
+                    preparedStatement.setNull(2, Types.BIGINT);
+                }
+                preparedStatement.setString(3, addrObjName);
+                preparedStatement.setString(4, typeName);
+                if (objLevel != null) {
+                    preparedStatement.setShort(5, Short.parseShort(objLevel));
+                } else {
+                    preparedStatement.setNull(5, Types.SMALLINT);
+                }
+                if (prevId != null) {
+                    preparedStatement.setLong(6, Long.parseLong(prevId));
+                } else {
+                    preparedStatement.setNull(6, Types.BIGINT);
+                }
+                if (addrObjUpdateDate != null) {
+                    preparedStatement.setDate(7, new Date(formatter.parse(addrObjUpdateDate).getTime()));
+                } else {
+                    preparedStatement.setDate(7, new Date(0L));
+                }
+                preparedStatement.setShort(8, regionCode);
+
+                if (amountOfBatches == 80) {
+                    preparedStatement.executeBatch();
+                    preparedStatement.clearBatch();
+                    amountOfBatches = 0;
+                }
+                preparedStatement.addBatch();
+                preparedStatement.clearParameters();
+                amountOfBatches++;
+            } catch (SQLException | ParseException e) {
+                throw new RuntimeException(e);
             }
-            else {
-
-            }
-
-
-
+//            } else {
+//                try {
+//                    PreparedStatement preparedStatementForSelect =
+//                            connection.prepareStatement(
+//                                    readFile("E:/Flex/address-searcher-fias/src/main/resources/database/select_queries/select_from_addr_objects_primary_and_next_ids.sql")
+//                                            .replace("XXX", regionCode.toString()));
+//                    preparedStatementForSelect.setLong(1, Long.parseLong(prevId));
+//                    ResultSet resultSet = preparedStatementForSelect.executeQuery();
+//
+//                    if (!resultSet.next()) { // nothing return after execution query
+//                        PreparedStatement preparedStatementForInsert = connection.prepareStatement(
+//                                readFile("E:/Flex/address-searcher-fias/src/main/resources/database/insert_queries/insert_into_addr_objects_primary_and_next_ids.sql")
+//                                        .replace("XXX", regionCode.toString()));
+//                        if (addrObjId != null) {
+//                            preparedStatementForInsert.setLong(1, Long.parseLong(addrObjId));
+//                        } else {
+//                            preparedStatementForInsert.setNull(1, Types.BIGINT);
+//                        }
+//                        preparedStatementForInsert.setLong(2, Long.parseLong(prevId));
+//                        preparedStatementForInsert.executeUpdate();
+//
+//                        PreparedStatement preparedStatementForUpdate = connection.prepareStatement(
+//                                readFile("E:/Flex/address-searcher-fias/src/main/resources/database/update_queries/update_addr_objects.sql")
+//                                        .replace("XXX", regionCode.toString()));
+//                        if (objectId != null) {
+//                            preparedStatementForUpdate.setLong(1, Long.parseLong(objectId));
+//                        } else {
+//                            preparedStatementForUpdate.setNull(1, Types.BIGINT);
+//                        }
+//                        preparedStatementForUpdate.setString(2, addrName);
+//                        preparedStatementForUpdate.setString(3, typeName);
+//                        if (objLevel != null) {
+//                            preparedStatementForUpdate.setShort(4, Short.parseShort(objLevel));
+//                        } else {
+//                            preparedStatementForUpdate.setNull(4, Types.SMALLINT);
+//                        }
+//                        preparedStatementForUpdate.setShort(5, regionCode);
+//                        if (addrObjId != null) {
+//                            preparedStatementForUpdate.setLong(6, Long.parseLong(prevId));
+//                        } else {
+//                            preparedStatementForUpdate.setNull(6, Types.BIGINT);
+//                        }
+//                        preparedStatementForUpdate.executeUpdate();
+//
+//                    } else {
+//                        long primaryId = resultSet.getLong("primary_id");
+//                        PreparedStatement preparedStatementForInsert = connection.prepareStatement(
+//                                readFile("E:/Flex/address-searcher-fias/src/main/resources/database/insert_queries/insert_into_addr_objects_primary_and_next_ids.sql")
+//                                        .replace("XXX", regionCode.toString()));
+//                        if (addrObjId != null) {
+//                            preparedStatementForInsert.setLong(1, Long.parseLong(addrObjId));
+//                        } else {
+//                            preparedStatementForInsert.setNull(1, Types.BIGINT);
+//                        }
+//                        preparedStatementForInsert.setLong(2, primaryId);
+//                        preparedStatementForInsert.executeUpdate();
+//
+//                        PreparedStatement preparedStatementForUpdate = connection.prepareStatement(
+//                                readFile("E:/Flex/address-searcher-fias/src/main/resources/database/update_queries/update_addr_objects.sql")
+//                                        .replace("XXX", regionCode.toString()));
+//                        if (objectId != null) {
+//                            preparedStatementForUpdate.setLong(1, Long.parseLong(objectId));
+//                        } else {
+//                            preparedStatementForUpdate.setNull(1, Types.BIGINT);
+//                        }
+//                        preparedStatementForUpdate.setString(2, addrName);
+//                        preparedStatementForUpdate.setString(3, typeName);
+//                        if (objLevel != null) {
+//                            preparedStatementForUpdate.setShort(4, Short.parseShort(objLevel));
+//                        } else {
+//                            preparedStatementForUpdate.setNull(4, Types.SMALLINT);
+//                        }
+//                        preparedStatementForUpdate.setShort(5, regionCode);
+//                        if (addrObjId != null) {
+//                            preparedStatementForUpdate.setLong(6, primaryId);
+//                        } else {
+//                            preparedStatementForUpdate.setNull(6, Types.BIGINT);
+//                        }
+//                        preparedStatementForUpdate.executeUpdate();
+//                    }
+//                } catch (SQLException | IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
         }
 
         @Override
