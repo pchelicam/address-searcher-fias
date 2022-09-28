@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.sql.Date;
 
 @Entity
 @Table(name = "addr_objects")
@@ -16,8 +17,8 @@ public class AddressObjects {
     @Column(name = "object_id")
     private Long objectId;
 
-    @Column(name = "addr_name")
-    private String addressName;
+    @Column(name = "addr_obj_name")
+    private String addressObjectName;
 
     @Column(name = "type_name")
     private String typeName;
@@ -27,6 +28,9 @@ public class AddressObjects {
 
     @Column(name = "region_code")
     private Short regionCode;
+
+    @Column(name = "addr_obj_update_date")
+    private Date addressObjectUpdateDate;
 
     public Long getAddressObjectId() {
         return addressObjectId;
@@ -44,12 +48,12 @@ public class AddressObjects {
         this.objectId = objectId;
     }
 
-    public String getAddressName() {
-        return addressName;
+    public String getAddressObjectName() {
+        return addressObjectName;
     }
 
-    public void setAddressName(String addressName) {
-        this.addressName = addressName;
+    public void setAddressObjectName(String addressObjectName) {
+        this.addressObjectName = addressObjectName;
     }
 
     public String getTypeName() {
@@ -74,6 +78,14 @@ public class AddressObjects {
 
     public void setRegionCode(Short regionCode) {
         this.regionCode = regionCode;
+    }
+
+    public Date getAddressObjectUpdateDate() {
+        return addressObjectUpdateDate;
+    }
+
+    public void setAddressObjectUpdateDate(Date addressObjectUpdateDate) {
+        this.addressObjectUpdateDate = addressObjectUpdateDate;
     }
 
 }

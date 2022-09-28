@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import ru.pchelicam.entities.dao.AddressObjects;
+import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.AddressSearcherConfigRepository;
 
 import javax.sql.DataSource;
@@ -22,17 +24,22 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class XmlParserManager {
 
     private final DataSource dataSource;
     private final AddressSearcherConfigRepository addressSearcherConfigRepository;
+    private final AddressObjectsRepository addressObjectsRepository;
 
     @Autowired
-    public XmlParserManager(AddressSearcherConfigRepository addressSearcherConfigRepository, DataSource dataSource) {
+    public XmlParserManager(AddressSearcherConfigRepository addressSearcherConfigRepository, DataSource dataSource,
+                            AddressObjectsRepository addressObjectsRepository) {
         this.addressSearcherConfigRepository = addressSearcherConfigRepository;
         this.dataSource = dataSource;
+        this.addressObjectsRepository = addressObjectsRepository;
     }
 
     public void manageDataInsert(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException {
@@ -60,6 +67,8 @@ public class XmlParserManager {
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
+
+        keepOnlyLatestUpdates(regionCode);
 
 //        XmlParserHouses xmlParserHouses = new XmlParserHouses(
 //                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
@@ -145,6 +154,55 @@ public class XmlParserManager {
         callableStatement.execute();
         callableStatement.close();
         connection.close();
+    }
+
+    private void keepOnlyLatestUpdates(Short regionCode) throws SQLException, IOException {
+//        Connection connection = XmlParserManager.this.dataSource.getConnection();
+//        PreparedStatement preparedStatement = connection.prepareStatement(readFile(
+//                new ClassPathResource("database/select_queries/select_distinct_object_id_from_addr_objects.sql").getFile().getAbsolutePath()));
+//        preparedStatement.setShort(1, regionCode);
+//        ResultSet resultSet = preparedStatement.executeQuery();
+//        PreparedStatement preparedStatementToDelete = connection.prepareStatement(readFile(
+//                new ClassPathResource("database/delete_queries/delete_from_addr_objects_by_addr_obj_id.sql").getFile().getAbsolutePath()));
+//        int amountOfBatches = 0;
+//        while (resultSet.next()) {
+//            long currentObjectId = resultSet.getLong("object_id");
+//            PreparedStatement preparedStatementTmp = connection.prepareStatement(readFile(
+//                    new ClassPathResource("database/select_queries/select_addr_object_id_from_addr_objects_order_by_addr_obj_update_date.sql")
+//                            .getFile().getAbsolutePath()));
+//            preparedStatementTmp.setShort(1, regionCode);
+//            preparedStatementTmp.setLong(2, currentObjectId);
+//            ResultSet resultSetTmp = preparedStatementTmp.executeQuery();
+//            resultSetTmp.next();
+//            while (resultSetTmp.next()) {
+//                long currentAddressObjectId = resultSetTmp.getLong("addr_obj_id");
+//                preparedStatementToDelete.setLong(1, currentAddressObjectId);
+//                if (amountOfBatches == 80) {
+//                    preparedStatementToDelete.executeBatch();
+//                    preparedStatementToDelete.clearBatch();
+//                    amountOfBatches = 0;
+//                }
+//                preparedStatementToDelete.addBatch();
+//                preparedStatement.clearParameters();
+//                amountOfBatches++;
+//            }
+//        }
+        List<Long> uniqueObjectIdsList = addressObjectsRepository.findUniqueObjectIds(regionCode);
+        uniqueObjectIdsList.forEach(ob -> {
+            List<AddressObjects> allAddressObjectUpdates =
+                    addressObjectsRepository
+                            .findByRegionCodeAndObjectIdOrderByAddressObjectUpdateDateDesc(regionCode, ob);
+            if (allAddressObjectUpdates.size() > 1) {
+                addressObjectsRepository.deleteAllById(allAddressObjectUpdates.stream().skip(1L)
+                        .map(AddressObjects::getAddressObjectId).collect(Collectors.toList()));
+                //allAddressObjectUpdates.stream().skip(1L).forEach(up -> addressObjectsRepository.deleteById(up.getAddressObjectId()));
+            }
+        });
+    }
+
+    private String readFile(String path) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, StandardCharsets.UTF_8);
     }
 
     // TODO: rename fields
@@ -454,7 +512,7 @@ public class XmlParserManager {
             String addrObjName = attributes.getValue("NAME");
             String typeName = attributes.getValue("TYPENAME");
             String objLevel = attributes.getValue("LEVEL");
-            String prevId = attributes.getValue("PREVID");
+            //String prevId = attributes.getValue("PREVID");
             String addrObjUpdateDate = attributes.getValue("UPDATEDATE");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -477,17 +535,17 @@ public class XmlParserManager {
                 } else {
                     preparedStatement.setNull(5, Types.SMALLINT);
                 }
-                if (prevId != null) {
-                    preparedStatement.setLong(6, Long.parseLong(prevId));
-                } else {
-                    preparedStatement.setNull(6, Types.BIGINT);
-                }
+//                if (prevId != null) {
+//                    preparedStatement.setLong(6, Long.parseLong(prevId));
+//                } else {
+//                    preparedStatement.setNull(6, Types.BIGINT);
+//                }
                 if (addrObjUpdateDate != null) {
-                    preparedStatement.setDate(7, new Date(formatter.parse(addrObjUpdateDate).getTime()));
+                    preparedStatement.setDate(6, new Date(formatter.parse(addrObjUpdateDate).getTime()));
                 } else {
-                    preparedStatement.setDate(7, new Date(0L));
+                    preparedStatement.setDate(6, new Date(0L));
                 }
-                preparedStatement.setShort(8, regionCode);
+                preparedStatement.setShort(7, regionCode);
 
                 if (amountOfBatches == 80) {
                     preparedStatement.executeBatch();

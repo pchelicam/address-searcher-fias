@@ -30,7 +30,7 @@ CREATE TABLE addr_objects (
     addr_obj_name VARCHAR(250),
     type_name VARCHAR(50),
     obj_level SMALLINT,
-    prev_id BIGINT,
+    --prev_id BIGINT,
     addr_obj_update_date DATE,
     region_code SMALLINT
 );

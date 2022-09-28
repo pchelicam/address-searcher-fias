@@ -12,7 +12,7 @@ public interface AddressObjectsRepository extends JpaRepository<AddressObjects, 
     @Query("SELECT ao\n" +
             "FROM AddressObjects ao\n" +
             "WHERE ao.regionCode = :regionCode\n" +
-            "AND LOWER(ao.addressName) LIKE LOWER(CONCAT('%', :name,'%'))\n" +
+            "AND LOWER(ao.addressObjectName) LIKE LOWER(CONCAT('%', :name,'%'))\n" +
             "AND ao.objectLevel BETWEEN 1 AND 14\n" +
             "ORDER BY ao.objectLevel")
     List<AddressObjects> findLocalityByName(@Param("regionCode") Short regionCode,
@@ -24,10 +24,19 @@ public interface AddressObjectsRepository extends JpaRepository<AddressObjects, 
             "ON ao.objectId = ah.objectId\n" +
             "WHERE ao.regionCode = :regionCode\n" +
             "AND ah.parentObjectId = :parentObjectId\n" +
-            "AND LOWER(ao.addressName) LIKE LOWER(CONCAT('%', :name,'%'))\n" +
-            "ORDER BY ao.addressName")
+            "AND LOWER(ao.addressObjectName) LIKE LOWER(CONCAT('%', :name,'%'))\n" +
+            "ORDER BY ao.addressObjectName")
     List<AddressObjects> findStreetByLocalityIdAndStreetName(@Param("regionCode") Short regionCode,
                                                              @Param("parentObjectId") Long parentObjectId,
                                                              @Param("name") String streetName);
+
+
+
+    @Query("SELECT DISTINCT ao.objectId\n" +
+            "FROM AddressObjects ao\n" +
+            "WHERE ao.regionCode = :regionCode")
+    List<Long> findUniqueObjectIds(@Param("regionCode") Short regionCode);
+
+    List<AddressObjects> findByRegionCodeAndObjectIdOrderByAddressObjectUpdateDateDesc(Short regionCode, Long objectId);
 
 }

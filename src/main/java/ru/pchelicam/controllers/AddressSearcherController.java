@@ -50,6 +50,7 @@ public class AddressSearcherController {
         try {
             xmlParserManager.manageDataInsert(regionCode);
         } catch (ParserConfigurationException | SAXException | IOException | SQLException e) {
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(null, HttpStatus.CREATED);
@@ -81,7 +82,7 @@ public class AddressSearcherController {
     public List<LocalityDTO> getLocalities(@RequestParam(name = "regionCode") Short regionCode, @RequestParam(name = "name") String localityName) {
         List<AddressObjects> addressObjects = addressObjectsRepository.findLocalityByName(regionCode, localityName);
         return addressObjects.stream().map(l ->
-                        new LocalityDTO(l.getObjectId(), l.getAddressName(), l.getTypeName()))
+                        new LocalityDTO(l.getObjectId(), l.getAddressObjectName(), l.getTypeName()))
                 .collect(Collectors.toList());
     }
 
@@ -91,7 +92,7 @@ public class AddressSearcherController {
                                           @RequestParam(name = "name") String streetName) {
         List<AddressObjects> addressObjects = addressObjectsRepository.findStreetByLocalityIdAndStreetName(regionCode, localityId, streetName);
         return addressObjects.stream().map(l ->
-                        new StreetDTO(l.getObjectId(), l.getAddressName(), l.getTypeName()))
+                        new StreetDTO(l.getObjectId(), l.getAddressObjectName(), l.getTypeName()))
                 .collect(Collectors.toList());
     }
 
