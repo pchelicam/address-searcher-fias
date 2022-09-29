@@ -32,6 +32,7 @@ CREATE TABLE addr_objects (
     obj_level SMALLINT,
     --prev_id BIGINT,
     addr_obj_update_date DATE,
+    addr_obj_end_date DATE,
     region_code SMALLINT
 );
 

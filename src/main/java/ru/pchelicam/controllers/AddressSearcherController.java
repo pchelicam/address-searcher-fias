@@ -73,7 +73,7 @@ public class AddressSearcherController {
             xmlParserManagerUpdates.manageUpdatingData(regionCode);
         } catch (IOException | SQLException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("An error occurred while updating. Maybe you should reload the data to database. Error message: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(null, HttpStatus.CREATED);
     }

@@ -32,6 +32,9 @@ public class AddressObjects {
     @Column(name = "addr_obj_update_date")
     private Date addressObjectUpdateDate;
 
+    @Column(name = "addr_obj_end_date")
+    private Date addressObjectEndDate;
+
     public Long getAddressObjectId() {
         return addressObjectId;
     }
@@ -88,4 +91,11 @@ public class AddressObjects {
         this.addressObjectUpdateDate = addressObjectUpdateDate;
     }
 
+    public Date getAddressObjectEndDate() {
+        return addressObjectEndDate;
+    }
+
+    public void setAddressObjectEndDate(Date addressObjectEndDate) {
+        this.addressObjectEndDate = addressObjectEndDate;
+    }
 }

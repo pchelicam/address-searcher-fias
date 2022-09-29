@@ -191,11 +191,10 @@ public class XmlParserManager {
         uniqueObjectIdsList.forEach(ob -> {
             List<AddressObjects> allAddressObjectUpdates =
                     addressObjectsRepository
-                            .findByRegionCodeAndObjectIdOrderByAddressObjectUpdateDateDesc(regionCode, ob);
+                            .findByRegionCodeAndObjectIdOrderByAddressObjectEndDateDesc(regionCode, ob);
             if (allAddressObjectUpdates.size() > 1) {
                 addressObjectsRepository.deleteAllById(allAddressObjectUpdates.stream().skip(1L)
                         .map(AddressObjects::getAddressObjectId).collect(Collectors.toList()));
-                //allAddressObjectUpdates.stream().skip(1L).forEach(up -> addressObjectsRepository.deleteById(up.getAddressObjectId()));
             }
         });
     }
@@ -507,19 +506,20 @@ public class XmlParserManager {
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
             if (qName.equals("ADDRESSOBJECTS"))
                 return;
-            String addrObjId = attributes.getValue("ID");
+            String addressObjectId = attributes.getValue("ID");
             String objectId = attributes.getValue("OBJECTID");
-            String addrObjName = attributes.getValue("NAME");
+            String addressObjectName = attributes.getValue("NAME");
             String typeName = attributes.getValue("TYPENAME");
             String objLevel = attributes.getValue("LEVEL");
             //String prevId = attributes.getValue("PREVID");
-            String addrObjUpdateDate = attributes.getValue("UPDATEDATE");
+            String addressObjectUpdateDate = attributes.getValue("UPDATEDATE");
+            String addressObjectEndDate = attributes.getValue("ENDDATE");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
             //if (prevId == null || prevId.equals("0")) {
             try {
-                if (addrObjId != null) {
-                    preparedStatement.setLong(1, Long.parseLong(addrObjId));
+                if (addressObjectId != null) {
+                    preparedStatement.setLong(1, Long.parseLong(addressObjectId));
                 } else {
                     preparedStatement.setNull(1, Types.BIGINT);
                 }
@@ -528,7 +528,7 @@ public class XmlParserManager {
                 } else {
                     preparedStatement.setNull(2, Types.BIGINT);
                 }
-                preparedStatement.setString(3, addrObjName);
+                preparedStatement.setString(3, addressObjectName);
                 preparedStatement.setString(4, typeName);
                 if (objLevel != null) {
                     preparedStatement.setShort(5, Short.parseShort(objLevel));
@@ -540,12 +540,17 @@ public class XmlParserManager {
 //                } else {
 //                    preparedStatement.setNull(6, Types.BIGINT);
 //                }
-                if (addrObjUpdateDate != null) {
-                    preparedStatement.setDate(6, new Date(formatter.parse(addrObjUpdateDate).getTime()));
+                if (addressObjectUpdateDate != null) {
+                    preparedStatement.setDate(6, new Date(formatter.parse(addressObjectUpdateDate).getTime()));
                 } else {
                     preparedStatement.setDate(6, new Date(0L));
                 }
-                preparedStatement.setShort(7, regionCode);
+                if (addressObjectEndDate != null) {
+                    preparedStatement.setDate(7, new Date(formatter.parse(addressObjectEndDate).getTime()));
+                } else {
+                    preparedStatement.setDate(7, new Date(0L));
+                }
+                preparedStatement.setShort(8, regionCode);
 
                 if (amountOfBatches == 80) {
                     preparedStatement.executeBatch();
