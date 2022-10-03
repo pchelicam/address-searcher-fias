@@ -478,7 +478,6 @@ public class XmlParserManager {
             String typeName = attributes.getValue("TYPENAME");
             String objectLevel = attributes.getValue("LEVEL");
             String addressObjectEndDate = attributes.getValue("ENDDATE");
-
             try {
                 if (addressObjectId != null) {
                     preparedStatement.setLong(1, Long.parseLong(addressObjectId));

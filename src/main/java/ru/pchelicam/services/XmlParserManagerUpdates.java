@@ -91,7 +91,6 @@ public class XmlParserManagerUpdates {
             String typeName = attributes.getValue("TYPENAME");
             String objectLevel = attributes.getValue("LEVEL");
             String addressObjectEndDate = attributes.getValue("ENDDATE");
-
             if (objectId != null) {
                 AddressObjects currentAddressObject = new AddressObjects();
                 Long objectIdLongValue = Long.parseLong(objectId);

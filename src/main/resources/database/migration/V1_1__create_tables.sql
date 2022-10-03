@@ -13,7 +13,6 @@ CREATE TABLE apartment_types (
 CREATE TABLE reestr_objects  (
     object_id BIGINT,
     object_guid VARCHAR(36),
-    reestr_objects_end_date DATE,
     region_code SMALLINT
 );
 
