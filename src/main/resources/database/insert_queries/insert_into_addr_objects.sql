@@ -1,1 +1,1 @@
-INSERT INTO addr_objects_rcXXX (addr_obj_id, object_id, addr_obj_name, type_name, obj_level, addr_obj_update_date, addr_obj_end_date, region_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO addr_objects_rcXXX (addr_obj_id, object_id, addr_obj_name, type_name, obj_level, addr_obj_end_date, region_code) VALUES (?, ?, ?, ?, ?, ?, ?)

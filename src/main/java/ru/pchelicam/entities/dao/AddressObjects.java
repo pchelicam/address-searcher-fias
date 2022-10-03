@@ -26,14 +26,11 @@ public class AddressObjects {
     @Column(name = "obj_level")
     private Short objectLevel;
 
-    @Column(name = "region_code")
-    private Short regionCode;
-
-    @Column(name = "addr_obj_update_date")
-    private Date addressObjectUpdateDate;
-
     @Column(name = "addr_obj_end_date")
     private Date addressObjectEndDate;
+
+    @Column(name = "region_code")
+    private Short regionCode;
 
     public Long getAddressObjectId() {
         return addressObjectId;
@@ -83,14 +80,6 @@ public class AddressObjects {
         this.regionCode = regionCode;
     }
 
-    public Date getAddressObjectUpdateDate() {
-        return addressObjectUpdateDate;
-    }
-
-    public void setAddressObjectUpdateDate(Date addressObjectUpdateDate) {
-        this.addressObjectUpdateDate = addressObjectUpdateDate;
-    }
-
     public Date getAddressObjectEndDate() {
         return addressObjectEndDate;
     }
@@ -98,4 +87,5 @@ public class AddressObjects {
     public void setAddressObjectEndDate(Date addressObjectEndDate) {
         this.addressObjectEndDate = addressObjectEndDate;
     }
+
 }

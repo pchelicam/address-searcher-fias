@@ -13,6 +13,7 @@ CREATE TABLE apartment_types (
 CREATE TABLE reestr_objects  (
     object_id BIGINT,
     object_guid VARCHAR(36),
+    reestr_objects_end_date DATE,
     region_code SMALLINT
 );
 
@@ -30,8 +31,6 @@ CREATE TABLE addr_objects (
     addr_obj_name VARCHAR(250),
     type_name VARCHAR(50),
     obj_level SMALLINT,
-    --prev_id BIGINT,
-    addr_obj_update_date DATE,
     addr_obj_end_date DATE,
     region_code SMALLINT
 );
@@ -49,11 +48,5 @@ CREATE TABLE apartments (
     object_id BIGINT,
     apart_type INTEGER,
     apart_number VARCHAR(50),
-    region_code SMALLINT
-);
-
-CREATE TABLE addr_objects_primary_and_next_ids (
-    next_id BIGINT,
-    primary_id BIGINT,
     region_code SMALLINT
 );

@@ -19,14 +19,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class XmlParserManagerUpdates {
@@ -34,6 +33,7 @@ public class XmlParserManagerUpdates {
     private final DataSource dataSource;
     private final AddressSearcherConfigRepository addressSearcherConfigRepository;
     private final AddressObjectsRepository addressObjectsRepository;
+    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     public XmlParserManagerUpdates(AddressSearcherConfigRepository addressSearcherConfigRepository, DataSource dataSource,
@@ -50,8 +50,9 @@ public class XmlParserManagerUpdates {
         SAXParser parser = factory.newSAXParser();
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
-        new ClassPathResource("/database/update_queries/update_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220915_638c30c1-e1c1-4e96-81a1-0120b3f861f2.XML"), xmlParserAddrObjects);
+                new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220915_638c30c1-e1c1-4e96-81a1-0120b3f861f2.XML"),
+                xmlParserAddrObjects);
     }
 
 
@@ -71,7 +72,7 @@ public class XmlParserManagerUpdates {
         }
 
         private void init() throws SQLException, IOException {
-            connection = XmlParserManagerUpdates.this.dataSource.getConnection();
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
         }
 
@@ -89,9 +90,8 @@ public class XmlParserManagerUpdates {
             String addressObjectName = attributes.getValue("NAME");
             String typeName = attributes.getValue("TYPENAME");
             String objectLevel = attributes.getValue("LEVEL");
-            String addressObjectUpdateDate = attributes.getValue("UPDATEDATE");
             String addressObjectEndDate = attributes.getValue("ENDDATE");
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
             if (objectId != null) {
                 AddressObjects currentAddressObject = new AddressObjects();
                 Long objectIdLongValue = Long.parseLong(objectId);
@@ -102,9 +102,8 @@ public class XmlParserManagerUpdates {
                 currentAddressObject.setObjectLevel(objectLevel != null ? Short.parseShort(objectLevel) : null);
                 currentAddressObject.setRegionCode(regionCode);
                 try {
-                    currentAddressObject.setAddressObjectUpdateDate(addressObjectUpdateDate != null ? new Date(formatter.parse(addressObjectUpdateDate).getTime())
-                            : new Date(0L));
-                    currentAddressObject.setAddressObjectEndDate(addressObjectEndDate != null ? new Date(formatter.parse(addressObjectEndDate).getTime())
+                    currentAddressObject.setAddressObjectEndDate(addressObjectEndDate != null
+                            ? new Date(formatter.parse(addressObjectEndDate).getTime())
                             : new Date(0L));
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
@@ -113,59 +112,59 @@ public class XmlParserManagerUpdates {
                 if (currentAddressObjectsList != null) {
                     currentAddressObjectsList.add(currentAddressObject);
                     addressObjectsUpdates.put(objectIdLongValue, currentAddressObjectsList);
-                }
-                else {
+                } else {
                     List<AddressObjects> addressObjectsListToInsert = new ArrayList<>();
                     addressObjectsListToInsert.add(currentAddressObject);
                     addressObjectsUpdates.put(objectIdLongValue, addressObjectsListToInsert);
                 }
             }
-//            try {
-//                if (objectId != null) {
-//                    preparedStatement.setLong(1, Long.parseLong(objectId));
-//                } else {
-//                    preparedStatement.setNull(1, Types.BIGINT);
-//                }
-//                preparedStatement.setString(2, addrName);
-//                preparedStatement.setString(3, typeName);
-//                if (objLevel != null) {
-//                    preparedStatement.setShort(4, Short.parseShort(objLevel));
-//                } else {
-//                    preparedStatement.setNull(4, Types.SMALLINT);
-//                }
-//                preparedStatement.setShort(5, regionCode);
-//                if (addrObjId != null) {
-//                    preparedStatement.setLong(6, Long.parseLong(addrObjId));
-//                } else {
-//                    preparedStatement.setNull(6, Types.BIGINT);
-//                }
-//                preparedStatement.executeUpdate();
-//            } catch (SQLException e) {
-//                throw new RuntimeException(e);
-//            }
         }
 
         @Override
         public void endDocument() {
+            List<Long> addressObjectsToDelete = new ArrayList<>(addressObjectsUpdates.keySet());
+            addressObjectsToDelete.forEach(XmlParserManagerUpdates.this.addressObjectsRepository::deleteByObjectId);
+            addressObjectsUpdates.forEach((key, value) -> {
+                AddressObjects addressObject = value
+                        .stream().min((ao1, ao2) -> ao2.getAddressObjectEndDate().compareTo(ao1.getAddressObjectEndDate())).orElse(null);
+                assert addressObject != null;
+                try {
+                    if (addressObject.getAddressObjectId() != null) {
+                        preparedStatement.setLong(1, addressObject.getAddressObjectId());
+                    } else {
+                        preparedStatement.setNull(1, Types.BIGINT);
+                    }
+                    if (addressObject.getObjectId() != null) {
+                        preparedStatement.setLong(2, addressObject.getObjectId());
+                    } else {
+                        preparedStatement.setNull(2, Types.BIGINT);
+                    }
+                    preparedStatement.setString(3, addressObject.getAddressObjectName());
+                    preparedStatement.setString(4, addressObject.getTypeName());
+                    if (addressObject.getObjectLevel() != null) {
+                        preparedStatement.setShort(5, addressObject.getObjectLevel());
+                    } else {
+                        preparedStatement.setNull(5, Types.SMALLINT);
+                    }
+                    if (addressObject.getAddressObjectEndDate() != null) {
+                        preparedStatement.setDate(6, addressObject.getAddressObjectEndDate());
+                    } else {
+                        preparedStatement.setDate(6, new Date(0L));
+                    }
+                    preparedStatement.setShort(7, regionCode);
+                    preparedStatement.executeUpdate();
+                    preparedStatement.clearParameters();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             try {
-                List<Long> addressObjectsToDelete = new ArrayList<>(addressObjectsUpdates.keySet());
-                addressObjectsToDelete.forEach(XmlParserManagerUpdates.this.addressObjectsRepository::deleteByObjectId);
-                addressObjectsUpdates.forEach((key, value) -> {
-                    List<AddressObjects> sorted=value
-                            .stream().sorted((ao1, ao2) -> ao2.getAddressObjectUpdateDate().compareTo(ao1.getAddressObjectUpdateDate())).collect(Collectors.toList());
-                    AddressObjects addressObjects = value
-                            .stream().sorted((ao1, ao2) -> ao2.getAddressObjectEndDate().compareTo(ao1.getAddressObjectEndDate()))
-                            .findFirst().orElse(null);
-                    assert addressObjects != null;
-                    XmlParserManagerUpdates.this.addressObjectsRepository.saveAndFlush(addressObjects);
-                });
                 preparedStatement.close();
                 connection.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
-
     }
 
 }

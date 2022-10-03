@@ -1,1 +1,0 @@
-INSERT INTO addr_objects_primary_and_next_ids_rcXXX (next_id, primary_id) VALUES (?, ?)
