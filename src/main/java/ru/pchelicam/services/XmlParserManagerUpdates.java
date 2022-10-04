@@ -7,8 +7,10 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.pchelicam.entities.dao.AddressObjects;
+import ru.pchelicam.entities.dao.AdmHierarchy;
 import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.AddressSearcherConfigRepository;
+import ru.pchelicam.repositories.AdmHierarchyRepository;
 
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,14 +34,16 @@ public class XmlParserManagerUpdates {
 
     private final DataSource dataSource;
     private final AddressSearcherConfigRepository addressSearcherConfigRepository;
+    private final AdmHierarchyRepository admHierarchyRepository;
     private final AddressObjectsRepository addressObjectsRepository;
-    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     public XmlParserManagerUpdates(AddressSearcherConfigRepository addressSearcherConfigRepository, DataSource dataSource,
-                                   AddressObjectsRepository addressObjectsRepository) {
+                                   AdmHierarchyRepository admHierarchyRepository, AddressObjectsRepository addressObjectsRepository) {
         this.addressSearcherConfigRepository = addressSearcherConfigRepository;
         this.dataSource = dataSource;
+        this.admHierarchyRepository = admHierarchyRepository;
         this.addressObjectsRepository = addressObjectsRepository;
     }
 
@@ -53,6 +57,118 @@ public class XmlParserManagerUpdates {
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220915_638c30c1-e1c1-4e96-81a1-0120b3f861f2.XML"),
                 xmlParserAddrObjects);
+    }
+
+
+    private class XmlParserAdmHierarchy extends DefaultHandler {
+
+        private Connection connection;
+        private PreparedStatement preparedStatement;
+        private final String fileName;
+        private final Short regionCode;
+        private final Map<Long, List<AdmHierarchy>> admHierarchyUpdates;
+
+        public XmlParserAdmHierarchy(String fileName, Short regionCode) throws SQLException, IOException {
+            this.fileName = fileName;
+            this.regionCode = regionCode;
+            admHierarchyUpdates = new HashMap<>();
+            init();
+        }
+
+        private void init() throws SQLException, IOException {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
+        }
+
+        private String readFile(String path) throws IOException {
+            byte[] encoded = Files.readAllBytes(Paths.get(path));
+            return new String(encoded, StandardCharsets.UTF_8);
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            if (qName.equals("ITEMS"))
+                return;
+            String admHierarchyId = attributes.getValue("ID");
+            String objectId = attributes.getValue("OBJECTID");
+            String parentObjectId = attributes.getValue("PARENTOBJID");
+            String fullPath = attributes.getValue("PATH");
+            String admHierarchyEndDate = attributes.getValue("ENDDATE");
+
+            if (objectId != null) {
+                AdmHierarchy currentAdmHierarchy = new AdmHierarchy();
+                Long objectIdLongValue = Long.parseLong(objectId);
+                currentAdmHierarchy.setAdmHierarchyId(admHierarchyId != null ? Long.parseLong(admHierarchyId) : null);
+                currentAdmHierarchy.setObjectId(objectIdLongValue);
+                currentAdmHierarchy.setParentObjectId(parentObjectId != null ? Long.parseLong(parentObjectId) : null);
+                currentAdmHierarchy.setFullPath(fullPath);
+                try {
+                    currentAdmHierarchy.setAdmHierarchyEndDate(admHierarchyEndDate != null
+                            ? new Date(simpleDateFormat.parse(admHierarchyEndDate).getTime())
+                            : new Date(0L));
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                currentAdmHierarchy.setRegionCode(regionCode);
+
+                List<AdmHierarchy> currentAdmHierarchyList = admHierarchyUpdates.get(objectIdLongValue);
+                if (currentAdmHierarchyList != null) {
+                    currentAdmHierarchyList.add(currentAdmHierarchy);
+                    admHierarchyUpdates.put(objectIdLongValue, currentAdmHierarchyList);
+                } else {
+                    List<AdmHierarchy> admHierarchyListToInsert = new ArrayList<>();
+                    admHierarchyListToInsert.add(currentAdmHierarchy);
+                    admHierarchyUpdates.put(objectIdLongValue, admHierarchyListToInsert);
+                }
+            }
+
+        }
+
+        @Override
+        public void endDocument() {
+            List<Long> admHierarchyToDelete = new ArrayList<>(admHierarchyUpdates.keySet());
+            admHierarchyToDelete.forEach(admHierarchyRepository::deleteByObjectId);
+            admHierarchyUpdates.forEach((key, value) -> {
+                AdmHierarchy admHierarchy = value
+                        .stream().min((ah1, ah2) -> ah2.getAdmHierarchyEndDate().compareTo(ah1.getAdmHierarchyEndDate())).orElse(null);
+                assert admHierarchy != null;
+                try {
+                    if (admHierarchy.getAdmHierarchyId() != null) {
+                        preparedStatement.setLong(1, admHierarchy.getAdmHierarchyId());
+                    } else {
+                        preparedStatement.setNull(1, Types.BIGINT);
+                    }
+                    if (admHierarchy.getObjectId() != null) {
+                        preparedStatement.setLong(2, admHierarchy.getObjectId());
+                    } else {
+                        preparedStatement.setNull(2, Types.BIGINT);
+                    }
+                    if (admHierarchy.getParentObjectId() != null) {
+                        preparedStatement.setLong(3, admHierarchy.getParentObjectId());
+                    } else {
+                        preparedStatement.setNull(3, Types.BIGINT);
+                    }
+                    preparedStatement.setString(4, admHierarchy.getFullPath());
+                    if (admHierarchy.getAdmHierarchyEndDate() != null) {
+                        preparedStatement.setDate(5, admHierarchy.getAdmHierarchyEndDate());
+                    } else {
+                        preparedStatement.setDate(5, new Date(0L));
+                    }
+                    preparedStatement.setShort(6, regionCode);
+                    preparedStatement.executeUpdate();
+                    preparedStatement.clearParameters();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
 
@@ -99,15 +215,16 @@ public class XmlParserManagerUpdates {
                 currentAddressObject.setAddressObjectName(addressObjectName);
                 currentAddressObject.setTypeName(typeName);
                 currentAddressObject.setObjectLevel(objectLevel != null ? Short.parseShort(objectLevel) : null);
-                currentAddressObject.setRegionCode(regionCode);
                 try {
                     currentAddressObject.setAddressObjectEndDate(addressObjectEndDate != null
-                            ? new Date(formatter.parse(addressObjectEndDate).getTime())
+                            ? new Date(simpleDateFormat.parse(addressObjectEndDate).getTime())
                             : new Date(0L));
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
                 }
-                List<AddressObjects> currentAddressObjectsList = addressObjectsUpdates.get(Long.parseLong(objectId));
+                currentAddressObject.setRegionCode(regionCode);
+
+                List<AddressObjects> currentAddressObjectsList = addressObjectsUpdates.get(objectIdLongValue);
                 if (currentAddressObjectsList != null) {
                     currentAddressObjectsList.add(currentAddressObject);
                     addressObjectsUpdates.put(objectIdLongValue, currentAddressObjectsList);
@@ -122,7 +239,7 @@ public class XmlParserManagerUpdates {
         @Override
         public void endDocument() {
             List<Long> addressObjectsToDelete = new ArrayList<>(addressObjectsUpdates.keySet());
-            addressObjectsToDelete.forEach(XmlParserManagerUpdates.this.addressObjectsRepository::deleteByObjectId);
+            addressObjectsToDelete.forEach(addressObjectsRepository::deleteByObjectId);
             addressObjectsUpdates.forEach((key, value) -> {
                 AddressObjects addressObject = value
                         .stream().min((ao1, ao2) -> ao2.getAddressObjectEndDate().compareTo(ao1.getAddressObjectEndDate())).orElse(null);
@@ -164,6 +281,7 @@ public class XmlParserManagerUpdates {
                 throw new RuntimeException(e);
             }
         }
+
     }
 
 }

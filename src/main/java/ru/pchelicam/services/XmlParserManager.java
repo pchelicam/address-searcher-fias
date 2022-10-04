@@ -8,8 +8,10 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.pchelicam.entities.dao.AddressObjects;
+import ru.pchelicam.entities.dao.AdmHierarchy;
 import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.AddressSearcherConfigRepository;
+import ru.pchelicam.repositories.AdmHierarchyRepository;
 
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,14 +34,16 @@ public class XmlParserManager {
 
     private final DataSource dataSource;
     private final AddressSearcherConfigRepository addressSearcherConfigRepository;
+    private final AdmHierarchyRepository admHierarchyRepository;
     private final AddressObjectsRepository addressObjectsRepository;
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     public XmlParserManager(AddressSearcherConfigRepository addressSearcherConfigRepository, DataSource dataSource,
-                            AddressObjectsRepository addressObjectsRepository) {
+                            AdmHierarchyRepository admHierarchyRepository, AddressObjectsRepository addressObjectsRepository) {
         this.addressSearcherConfigRepository = addressSearcherConfigRepository;
         this.dataSource = dataSource;
+        this.admHierarchyRepository = admHierarchyRepository;
         this.addressObjectsRepository = addressObjectsRepository;
     }
 
@@ -158,6 +162,16 @@ public class XmlParserManager {
     }
 
     private void keepOnlyLatestUpdates(Short regionCode) {
+        List<Long> uniqueObjectIdsAdmHierarchy = admHierarchyRepository.findUniqueObjectIds(regionCode);
+        uniqueObjectIdsAdmHierarchy.forEach(ob -> {
+            List<AdmHierarchy> allAdmHierarchyUpdates =
+                    admHierarchyRepository.findByRegionCodeAndObjectIdOrderByAdmHierarchyEndDateDesc(regionCode, ob);
+            if (allAdmHierarchyUpdates.size() > 1) {
+                admHierarchyRepository.deleteAllById(allAdmHierarchyUpdates.stream().skip(1L)
+                        .map(AdmHierarchy::getAdmHierarchyId).collect(Collectors.toList()));
+            }
+        });
+
         List<Long> uniqueObjectIdsAddressObjects = addressObjectsRepository.findUniqueObjectIds(regionCode);
         uniqueObjectIdsAddressObjects.forEach(ob -> {
             List<AddressObjects> allAddressObjectUpdates =
@@ -393,14 +407,14 @@ public class XmlParserManager {
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
             if (qName.equals("ITEMS"))
                 return;
-            String admHId = attributes.getValue("ID");
+            String admHierarchyId = attributes.getValue("ID");
             String objectId = attributes.getValue("OBJECTID");
-            String parentObjId = attributes.getValue("PARENTOBJID");
-            //String regionCode = attributes.getValue("REGIONCODE");
+            String parentObjectId = attributes.getValue("PARENTOBJID");
             String fullPath = attributes.getValue("PATH");
+            String admHierarchyEndDate = attributes.getValue("ENDDATE");
             try {
-                if (admHId != null) {
-                    preparedStatement.setLong(1, Long.parseLong(admHId));
+                if (admHierarchyId != null) {
+                    preparedStatement.setLong(1, Long.parseLong(admHierarchyId));
                 } else {
                     preparedStatement.setNull(1, Types.BIGINT);
                 }
@@ -409,14 +423,18 @@ public class XmlParserManager {
                 } else {
                     preparedStatement.setNull(2, Types.BIGINT);
                 }
-                if (parentObjId != null) {
-                    preparedStatement.setLong(3, Long.parseLong(parentObjId));
+                if (parentObjectId != null) {
+                    preparedStatement.setLong(3, Long.parseLong(parentObjectId));
                 } else {
                     preparedStatement.setNull(3, Types.BIGINT);
                 }
-                //preparedStatement.setShort(4, Short.parseShort(regionCode));
                 preparedStatement.setString(4, fullPath);
-                preparedStatement.setShort(5, regionCode);
+                if (admHierarchyEndDate != null) {
+                    preparedStatement.setDate(5, new Date(simpleDateFormat.parse(admHierarchyEndDate).getTime()));
+                } else {
+                    preparedStatement.setDate(5, new Date(0L));
+                }
+                preparedStatement.setShort(6, regionCode);
                 if (amountOfBatches == 80) {
                     preparedStatement.executeBatch();
                     preparedStatement.clearBatch();
@@ -425,7 +443,7 @@ public class XmlParserManager {
                 preparedStatement.addBatch();
                 preparedStatement.clearParameters();
                 amountOfBatches++;
-            } catch (SQLException e) {
+            } catch (SQLException | ParseException e) {
                 throw new RuntimeException(e);
             }
         }

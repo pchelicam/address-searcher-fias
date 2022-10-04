@@ -21,6 +21,7 @@ CREATE TABLE adm_hierarchy (
     object_id BIGINT,
     parent_object_id BIGINT,
     full_path VARCHAR(150),
+    adm_h_end_date DATE,
     region_code SMALLINT
 );
 
