@@ -53,6 +53,11 @@ public class XmlParserManagerUpdates {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
 
+        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy (
+                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220915_6c98192e-239e-4d50-921e-709cbeded838.XML"),
+                xmlParserAdmHierarchy);
+
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220915_638c30c1-e1c1-4e96-81a1-0120b3f861f2.XML"),
@@ -275,6 +280,83 @@ public class XmlParserManagerUpdates {
                 }
             });
             try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    private class XmlParserHouses extends DefaultHandler {
+
+        private Connection connection;
+        private PreparedStatement preparedStatement;
+        private int amountOfBatches;
+        private final String fileName;
+        private final Short regionCode;
+
+        public XmlParserHouses(String fileName, Short regionCode) throws SQLException, IOException {
+            this.fileName = fileName;
+            this.regionCode = regionCode;
+            init();
+        }
+
+        private void init() throws SQLException, IOException {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
+            amountOfBatches = 0;
+        }
+
+        private String readFile(String path) throws IOException {
+            byte[] encoded = Files.readAllBytes(Paths.get(path));
+            return new String(encoded, StandardCharsets.UTF_8);
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            if (qName.equals("HOUSES"))
+                return;
+            String houseId = attributes.getValue("ID");
+            String objectId = attributes.getValue("OBJECTID");
+            String houseNum = attributes.getValue("HOUSENUM");
+            String houseType = attributes.getValue("HOUSETYPE");
+            try {
+                if (houseId != null) {
+                    preparedStatement.setLong(1, Long.parseLong(houseId));
+                } else {
+                    preparedStatement.setNull(1, Types.BIGINT);
+                }
+                if (objectId != null) {
+                    preparedStatement.setLong(2, Long.parseLong(objectId));
+                } else {
+                    preparedStatement.setNull(2, Types.BIGINT);
+                }
+                preparedStatement.setString(3, houseNum);
+                if (houseType != null) {
+                    preparedStatement.setInt(4, Integer.parseInt(houseType));
+                } else {
+                    preparedStatement.setNull(4, Types.INTEGER);
+                }
+                preparedStatement.setShort(5, regionCode);
+                if (amountOfBatches == 80) {
+                    preparedStatement.executeBatch();
+                    preparedStatement.clearBatch();
+                    amountOfBatches = 0;
+                }
+                preparedStatement.addBatch();
+                preparedStatement.clearParameters();
+                amountOfBatches++;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void endDocument() {
+            try {
+                preparedStatement.executeBatch();
                 preparedStatement.close();
                 connection.close();
             } catch (SQLException e) {

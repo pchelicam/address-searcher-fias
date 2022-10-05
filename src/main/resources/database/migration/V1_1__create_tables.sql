@@ -40,6 +40,7 @@ CREATE TABLE houses (
     object_id BIGINT,
     house_num VARCHAR(50),
     house_type INTEGER,
+    house_end_date DATE,
     region_code SMALLINT
 );
 

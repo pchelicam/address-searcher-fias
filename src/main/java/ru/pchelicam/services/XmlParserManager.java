@@ -9,9 +9,11 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.pchelicam.entities.dao.AddressObjects;
 import ru.pchelicam.entities.dao.AdmHierarchy;
+import ru.pchelicam.entities.dao.Houses;
 import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.AddressSearcherConfigRepository;
 import ru.pchelicam.repositories.AdmHierarchyRepository;
+import ru.pchelicam.repositories.HousesRepository;
 
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,15 +38,18 @@ public class XmlParserManager {
     private final AddressSearcherConfigRepository addressSearcherConfigRepository;
     private final AdmHierarchyRepository admHierarchyRepository;
     private final AddressObjectsRepository addressObjectsRepository;
+    private final HousesRepository housesRepository;
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     public XmlParserManager(AddressSearcherConfigRepository addressSearcherConfigRepository, DataSource dataSource,
-                            AdmHierarchyRepository admHierarchyRepository, AddressObjectsRepository addressObjectsRepository) {
+                            AdmHierarchyRepository admHierarchyRepository, AddressObjectsRepository addressObjectsRepository,
+                            HousesRepository housesRepository) {
         this.addressSearcherConfigRepository = addressSearcherConfigRepository;
         this.dataSource = dataSource;
         this.admHierarchyRepository = admHierarchyRepository;
         this.addressObjectsRepository = addressObjectsRepository;
+        this.housesRepository = housesRepository;
     }
 
     public void manageDataInsert(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException {
@@ -73,8 +78,6 @@ public class XmlParserManager {
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
 
-        keepOnlyLatestUpdates(regionCode);
-
         XmlParserHouses xmlParserHouses = new XmlParserHouses(
                 new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
@@ -82,6 +85,8 @@ public class XmlParserManager {
         XmlParserApartments xmlParserApartments = new XmlParserApartments(
                 new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+
+        keepOnlyLatestUpdates(regionCode);
 
         callAfterFullImport(regionCode);
     }
@@ -138,7 +143,7 @@ public class XmlParserManager {
         connection.close();
     }
 
-    private void callBeforeFullImport(Short regionCode) throws IOException, SQLException, URISyntaxException {
+    private void callBeforeFullImport(Short regionCode) throws IOException, SQLException {
         Connection connection = dataSource.getConnection();
         Resource resource = new ClassPathResource("database/call_procedures_queries/call_before_full_import.sql");
         byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
@@ -180,6 +185,17 @@ public class XmlParserManager {
             if (allAddressObjectUpdates.size() > 1) {
                 addressObjectsRepository.deleteAllById(allAddressObjectUpdates.stream().skip(1L)
                         .map(AddressObjects::getAddressObjectId).collect(Collectors.toList()));
+            }
+        });
+
+        List<Long> uniqueObjectIdsHouses = housesRepository.findUniqueObjectIds(regionCode);
+        uniqueObjectIdsHouses.forEach(ob -> {
+            List<Houses> allHouseUpdates =
+                    housesRepository
+                            .findByRegionCodeAndObjectIdOrderByHouseEndDateDesc(regionCode, ob);
+            if (allHouseUpdates.size() > 1) {
+                housesRepository.deleteAllById(allHouseUpdates.stream().skip(1L)
+                        .map(Houses::getHouseId).collect(Collectors.toList()));
             }
         });
     }
@@ -580,6 +596,7 @@ public class XmlParserManager {
             String objectId = attributes.getValue("OBJECTID");
             String houseNum = attributes.getValue("HOUSENUM");
             String houseType = attributes.getValue("HOUSETYPE");
+            String houseEndDate = attributes.getValue("ENDDATE");
             try {
                 if (houseId != null) {
                     preparedStatement.setLong(1, Long.parseLong(houseId));
@@ -597,7 +614,12 @@ public class XmlParserManager {
                 } else {
                     preparedStatement.setNull(4, Types.INTEGER);
                 }
-                preparedStatement.setShort(5, regionCode);
+                if (houseEndDate != null) {
+                    preparedStatement.setDate(5, new Date(simpleDateFormat.parse(houseEndDate).getTime()));
+                } else {
+                    preparedStatement.setDate(5, new Date(0L));
+                }
+                preparedStatement.setShort(6, regionCode);
                 if (amountOfBatches == 80) {
                     preparedStatement.executeBatch();
                     preparedStatement.clearBatch();
@@ -606,7 +628,7 @@ public class XmlParserManager {
                 preparedStatement.addBatch();
                 preparedStatement.clearParameters();
                 amountOfBatches++;
-            } catch (SQLException e) {
+            } catch (SQLException | ParseException e) {
                 throw new RuntimeException(e);
             }
         }

@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.sql.Date;
 
 @Entity
 @Table(name = "houses")
@@ -21,6 +22,12 @@ public class Houses {
 
     @Column(name = "house_type")
     private Integer houseType;
+
+    @Column(name = "house_end_date")
+    private Date houseEndDate;
+
+    @Column(name = "region_code")
+    private Short regionCode;
 
     public Long getHouseId() {
         return houseId;
@@ -53,4 +60,21 @@ public class Houses {
     public void setHouseType(Integer houseType) {
         this.houseType = houseType;
     }
+
+    public Date getHouseEndDate() {
+        return houseEndDate;
+    }
+
+    public void setHouseEndDate(Date houseEndDate) {
+        this.houseEndDate = houseEndDate;
+    }
+
+    public Short getRegionCode() {
+        return regionCode;
+    }
+
+    public void setRegionCode(Short regionCode) {
+        this.regionCode = regionCode;
+    }
+
 }
