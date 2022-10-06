@@ -4,18 +4,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
-import ru.pchelicam.entities.dao.AdmHierarchy;
+import ru.pchelicam.entities.dao.Apartments;
 
 import java.util.List;
 
-public interface AdmHierarchyRepository extends JpaRepository<AdmHierarchy, Long> {
+public interface ApartmentsRepository extends JpaRepository<Apartments, Long> {
 
-    @Query("SELECT DISTINCT ah.objectId\n" +
-            "FROM AdmHierarchy ah\n" +
-            "WHERE ah.regionCode = :regionCode")
+    @Query("SELECT DISTINCT ap.objectId\n" +
+            "FROM Apartments ap\n" +
+            "WHERE ap.regionCode = :regionCode")
     List<Long> findUniqueObjectIds(@Param("regionCode") Short regionCode);
 
-    List<AdmHierarchy> findByRegionCodeAndObjectIdOrderByAdmHierarchyEndDateDesc(Short regionCode, Long objectId);
+    List<Apartments> findByRegionCodeAndObjectIdOrderByApartmentEndDateDesc(Short regionCode, Long objectId);
 
     @Transactional
     void deleteByObjectId(Long objectId);

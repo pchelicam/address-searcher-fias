@@ -1,6 +1,12 @@
 package ru.pchelicam.entities.dao;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.SqlResultSetMapping;
 
 @SqlResultSetMapping(
         name = "apartmentsWithApartmentTypeNamesMapping",

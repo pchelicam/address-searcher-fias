@@ -49,5 +49,6 @@ CREATE TABLE apartments (
     object_id BIGINT,
     apart_type INTEGER,
     apart_number VARCHAR(50),
+    apart_end_date DATE,
     region_code SMALLINT
 );

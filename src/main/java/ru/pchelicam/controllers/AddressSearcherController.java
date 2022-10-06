@@ -10,7 +10,10 @@ import org.xml.sax.SAXException;
 import ru.pchelicam.entities.dao.AddressObjects;
 import ru.pchelicam.entities.dao.ApartmentsWithApartmentTypeNames;
 import ru.pchelicam.entities.dao.HousesWithHouseTypeNames;
-import ru.pchelicam.entities.dto.*;
+import ru.pchelicam.entities.dto.ApartmentDTO;
+import ru.pchelicam.entities.dto.HouseDTO;
+import ru.pchelicam.entities.dto.LocalityDTO;
+import ru.pchelicam.entities.dto.StreetDTO;
 import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.ApartmentsWithApartmentTypeNamesRepository;
 import ru.pchelicam.repositories.HousesWithHouseTypeNamesRepository;
@@ -88,9 +91,9 @@ public class AddressSearcherController {
     }
 
     @GetMapping(value = "/street")
-    public List<StreetDTO> getStreets(    @RequestParam(name = "regionCode") Short regionCode,
-                                          @RequestParam Long localityId,
-                                          @RequestParam(name = "name") String streetName) {
+    public List<StreetDTO> getStreets(@RequestParam(name = "regionCode") Short regionCode,
+                                      @RequestParam Long localityId,
+                                      @RequestParam(name = "name") String streetName) {
         List<AddressObjects> addressObjects = addressObjectsRepository.findStreetByLocalityIdAndStreetName(regionCode, localityId, streetName);
         return addressObjects.stream().map(l ->
                         new StreetDTO(l.getObjectId(), l.getAddressObjectName(), l.getTypeName()))

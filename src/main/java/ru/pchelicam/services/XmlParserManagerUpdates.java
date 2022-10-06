@@ -8,9 +8,13 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.pchelicam.entities.dao.AddressObjects;
 import ru.pchelicam.entities.dao.AdmHierarchy;
+import ru.pchelicam.entities.dao.Apartments;
+import ru.pchelicam.entities.dao.Houses;
 import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.AddressSearcherConfigRepository;
 import ru.pchelicam.repositories.AdmHierarchyRepository;
+import ru.pchelicam.repositories.ApartmentsRepository;
+import ru.pchelicam.repositories.HousesRepository;
 
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,7 +25,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,15 +44,20 @@ public class XmlParserManagerUpdates {
     private final AddressSearcherConfigRepository addressSearcherConfigRepository;
     private final AdmHierarchyRepository admHierarchyRepository;
     private final AddressObjectsRepository addressObjectsRepository;
+    private final HousesRepository housesRepository;
+    private final ApartmentsRepository apartmentsRepository;
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
-    public XmlParserManagerUpdates(AddressSearcherConfigRepository addressSearcherConfigRepository, DataSource dataSource,
-                                   AdmHierarchyRepository admHierarchyRepository, AddressObjectsRepository addressObjectsRepository) {
-        this.addressSearcherConfigRepository = addressSearcherConfigRepository;
+    public XmlParserManagerUpdates(DataSource dataSource, AddressSearcherConfigRepository addressSearcherConfigRepository,
+                                   AdmHierarchyRepository admHierarchyRepository, AddressObjectsRepository addressObjectsRepository,
+                                   HousesRepository housesRepository, ApartmentsRepository apartmentsRepository) {
         this.dataSource = dataSource;
+        this.addressSearcherConfigRepository = addressSearcherConfigRepository;
         this.admHierarchyRepository = admHierarchyRepository;
         this.addressObjectsRepository = addressObjectsRepository;
+        this.housesRepository = housesRepository;
+        this.apartmentsRepository = apartmentsRepository;
     }
 
     public void manageUpdatingData(Short regionCode) throws IOException, SQLException, ParserConfigurationException, SAXException {
@@ -53,7 +66,7 @@ public class XmlParserManagerUpdates {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
 
-        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy (
+        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
                 new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220915_6c98192e-239e-4d50-921e-709cbeded838.XML"),
                 xmlParserAdmHierarchy);
@@ -62,6 +75,14 @@ public class XmlParserManagerUpdates {
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220915_638c30c1-e1c1-4e96-81a1-0120b3f861f2.XML"),
                 xmlParserAddrObjects);
+
+        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220915_dbb3f968-95f4-47fc-a771-850bd1e20553.XML"), xmlParserHouses);
+
+        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220915_2ecb78fd-8396-47c5-b9c7-e58614ae5a67.XML"), xmlParserApartments);
     }
 
 
@@ -175,7 +196,6 @@ public class XmlParserManagerUpdates {
         }
 
     }
-
 
     private class XmlParserAddrObjects extends DefaultHandler {
 
@@ -293,20 +313,20 @@ public class XmlParserManagerUpdates {
 
         private Connection connection;
         private PreparedStatement preparedStatement;
-        private int amountOfBatches;
         private final String fileName;
         private final Short regionCode;
+        private final Map<Long, List<Houses>> housesUpdates;
 
         public XmlParserHouses(String fileName, Short regionCode) throws SQLException, IOException {
             this.fileName = fileName;
             this.regionCode = regionCode;
+            housesUpdates = new HashMap<>();
             init();
         }
 
         private void init() throws SQLException, IOException {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
-            amountOfBatches = 0;
         }
 
         private String readFile(String path) throws IOException {
@@ -322,41 +342,182 @@ public class XmlParserManagerUpdates {
             String objectId = attributes.getValue("OBJECTID");
             String houseNum = attributes.getValue("HOUSENUM");
             String houseType = attributes.getValue("HOUSETYPE");
-            try {
-                if (houseId != null) {
-                    preparedStatement.setLong(1, Long.parseLong(houseId));
+            String houseEndDate = attributes.getValue("ENDDATE");
+            if (objectId != null) {
+                Houses currentHouse = new Houses();
+                Long objectIdLongValue = Long.parseLong(objectId);
+                currentHouse.setHouseId(houseId != null ? Long.parseLong(houseId) : null);
+                currentHouse.setObjectId(objectIdLongValue);
+                currentHouse.setHouseNum(houseNum);
+                currentHouse.setHouseType(houseType != null ? Integer.parseInt(houseType) : null);
+                try {
+                    currentHouse.setHouseEndDate(houseEndDate != null
+                            ? new Date(simpleDateFormat.parse(houseEndDate).getTime())
+                            : new Date(0L));
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                currentHouse.setRegionCode(regionCode);
+
+                List<Houses> currentHousesList = housesUpdates.get(objectIdLongValue);
+                if (currentHousesList != null) {
+                    currentHousesList.add(currentHouse);
+                    housesUpdates.put(objectIdLongValue, currentHousesList);
                 } else {
-                    preparedStatement.setNull(1, Types.BIGINT);
+                    List<Houses> housesListToInsert = new ArrayList<>();
+                    housesListToInsert.add(currentHouse);
+                    housesUpdates.put(objectIdLongValue, housesListToInsert);
                 }
-                if (objectId != null) {
-                    preparedStatement.setLong(2, Long.parseLong(objectId));
-                } else {
-                    preparedStatement.setNull(2, Types.BIGINT);
-                }
-                preparedStatement.setString(3, houseNum);
-                if (houseType != null) {
-                    preparedStatement.setInt(4, Integer.parseInt(houseType));
-                } else {
-                    preparedStatement.setNull(4, Types.INTEGER);
-                }
-                preparedStatement.setShort(5, regionCode);
-                if (amountOfBatches == 80) {
-                    preparedStatement.executeBatch();
-                    preparedStatement.clearBatch();
-                    amountOfBatches = 0;
-                }
-                preparedStatement.addBatch();
-                preparedStatement.clearParameters();
-                amountOfBatches++;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
         }
 
         @Override
         public void endDocument() {
+            List<Long> housesToDelete = new ArrayList<>(housesUpdates.keySet());
+            housesToDelete.forEach(housesRepository::deleteByObjectId);
+            housesUpdates.forEach((key, value) -> {
+                Houses house = value
+                        .stream().min((h1, h2) -> h2.getHouseEndDate().compareTo(h1.getHouseEndDate())).orElse(null);
+                assert house != null;
+                try {
+                    if (house.getHouseId() != null) {
+                        preparedStatement.setLong(1, house.getHouseId());
+                    } else {
+                        preparedStatement.setNull(1, Types.BIGINT);
+                    }
+                    if (house.getObjectId() != null) {
+                        preparedStatement.setLong(2, house.getObjectId());
+                    } else {
+                        preparedStatement.setNull(2, Types.BIGINT);
+                    }
+                    preparedStatement.setString(3, house.getHouseNum());
+                    if (house.getHouseType() != null) {
+                        preparedStatement.setInt(4, house.getHouseType());
+                    } else {
+                        preparedStatement.setNull(4, Types.INTEGER);
+                    }
+                    if (house.getHouseEndDate() != null) {
+                        preparedStatement.setDate(5, house.getHouseEndDate());
+                    } else {
+                        preparedStatement.setDate(5, new Date(0L));
+                    }
+                    preparedStatement.setShort(6, regionCode);
+                    preparedStatement.executeUpdate();
+                    preparedStatement.clearParameters();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             try {
-                preparedStatement.executeBatch();
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    private class XmlParserApartments extends DefaultHandler {
+
+        private Connection connection;
+        private PreparedStatement preparedStatement;
+        private final String fileName;
+        private final Short regionCode;
+        private final Map<Long, List<Apartments>> apartmentsUpdates;
+
+        public XmlParserApartments(String fileName, Short regionCode) throws SQLException, IOException {
+            this.fileName = fileName;
+            this.regionCode = regionCode;
+            apartmentsUpdates = new HashMap<>();
+            init();
+        }
+
+        private void init() throws SQLException, IOException {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
+        }
+
+        private String readFile(String path) throws IOException {
+            byte[] encoded = Files.readAllBytes(Paths.get(path));
+            return new String(encoded, StandardCharsets.UTF_8);
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            if (qName.equals("APARTMENTS"))
+                return;
+            String apartmentId = attributes.getValue("ID");
+            String objectId = attributes.getValue("OBJECTID");
+            String apartmentType = attributes.getValue("APARTTYPE");
+            String apartmentNumber = attributes.getValue("NUMBER");
+            String apartmentEndDate = attributes.getValue("ENDDATE");
+            if (objectId != null) {
+                Apartments currentApartment = new Apartments();
+                Long objectIdLongValue = Long.parseLong(objectId);
+                currentApartment.setApartmentId(apartmentId != null ? Long.parseLong(apartmentId) : null);
+                currentApartment.setObjectId(objectIdLongValue);
+                currentApartment.setApartmentType(apartmentType != null ? Integer.parseInt(apartmentType) : null);
+                currentApartment.setApartmentNumber(apartmentNumber);
+                try {
+                    currentApartment.setApartmentEndDate(apartmentEndDate != null
+                            ? new Date(simpleDateFormat.parse(apartmentEndDate).getTime())
+                            : new Date(0L));
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                currentApartment.setRegionCode(regionCode);
+
+                List<Apartments> currentApartmentsList = apartmentsUpdates.get(objectIdLongValue);
+                if (currentApartmentsList != null) {
+                    currentApartmentsList.add(currentApartment);
+                    apartmentsUpdates.put(objectIdLongValue, currentApartmentsList);
+                } else {
+                    List<Apartments> apartmentsListToInsert = new ArrayList<>();
+                    apartmentsListToInsert.add(currentApartment);
+                    apartmentsUpdates.put(objectIdLongValue, apartmentsListToInsert);
+                }
+            }
+        }
+
+        @Override
+        public void endDocument() {
+            List<Long> apartmentsToDelete = new ArrayList<>(apartmentsUpdates.keySet());
+            apartmentsToDelete.forEach(apartmentsRepository::deleteByObjectId);
+            apartmentsUpdates.forEach((key, value) -> {
+                Apartments apartment = value
+                        .stream().min((ap1, ap2) -> ap2.getApartmentEndDate().compareTo(ap1.getApartmentEndDate())).orElse(null);
+                assert apartment != null;
+                try {
+                    if (apartment.getApartmentId() != null) {
+                        preparedStatement.setLong(1, apartment.getApartmentId());
+                    } else {
+                        preparedStatement.setNull(1, Types.BIGINT);
+                    }
+                    if (apartment.getObjectId() != null) {
+                        preparedStatement.setLong(2, apartment.getObjectId());
+                    } else {
+                        preparedStatement.setNull(2, Types.BIGINT);
+                    }
+                    if (apartment.getApartmentType() != null) {
+                        preparedStatement.setInt(3, apartment.getApartmentType());
+                    } else {
+                        preparedStatement.setNull(3, Types.INTEGER);
+                    }
+                    preparedStatement.setString(4, apartment.getApartmentNumber());
+                    if (apartment.getApartmentEndDate() != null) {
+                        preparedStatement.setDate(5, apartment.getApartmentEndDate());
+                    } else {
+                        preparedStatement.setDate(5, new Date(0L));
+                    }
+                    preparedStatement.setShort(6, regionCode);
+                    preparedStatement.executeUpdate();
+                    preparedStatement.clearParameters();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            try {
                 preparedStatement.close();
                 connection.close();
             } catch (SQLException e) {
