@@ -8,9 +8,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.pchelicam.entities.dao.AddressObjects;
-import ru.pchelicam.entities.dao.AdmHierarchy;
-import ru.pchelicam.entities.dao.Apartments;
-import ru.pchelicam.entities.dao.Houses;
 import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.AddressSearcherConfigRepository;
 import ru.pchelicam.repositories.AdmHierarchyRepository;
@@ -31,12 +28,13 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class XmlParserManager {
@@ -67,33 +65,33 @@ public class XmlParserManager {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
 
-        XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(
-                new ClassPathResource("database/insert_queries/insert_into_house_types.sql").getFile().getAbsolutePath());
-        parser.parse(new File(pathToXmlData + "/" + "AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
-
-        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
-                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
-        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
-
-        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
-                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
-
-        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
-                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
+//        XmlParserHouseTypes xmlParserHouseTypes = new XmlParserHouseTypes(
+//                new ClassPathResource("database/insert_queries/insert_into_house_types.sql").getFile().getAbsolutePath());
+//        parser.parse(new File(pathToXmlData + "/" + "AS_HOUSE_TYPES_20220725_c833a2ab-b3d4-4857-b18f-b39e9225354e.XML"), xmlParserHouseTypes);
+//
+//        XmlParserApartmentTypes xmlParserApartmentTypes = new XmlParserApartmentTypes(
+//                new ClassPathResource("/database/insert_queries/insert_into_apartment_types.sql").getFile().getAbsolutePath());
+//        parser.parse(new File(pathToXmlData + "/" + "AS_APARTMENT_TYPES_20220725_c296d158-0a36-4398-a1a5-d6a1f8b5a524.XML"), xmlParserApartmentTypes);
+//
+//        XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
+//                new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_REESTR_OBJECTS_20220725_84a6555e-6ca7-46cb-a9f0-7c8ec7d9f633.XML"), xmlParserReestrObjects);
+//
+//        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
+//                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
 
-        XmlParserHouses xmlParserHouses = new XmlParserHouses(
-                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
-
-        XmlParserApartments xmlParserApartments = new XmlParserApartments(
-                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+//        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+//                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
+//
+//        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+//                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
 
         keepOnlyLatestUpdates(regionCode);
 
@@ -175,49 +173,120 @@ public class XmlParserManager {
         connection.close();
     }
 
-    private void keepOnlyLatestUpdates(Short regionCode) {
-        List<Long> uniqueObjectIdsAdmHierarchy = admHierarchyRepository.findUniqueObjectIds(regionCode);
-        uniqueObjectIdsAdmHierarchy.forEach(ob -> {
-            List<AdmHierarchy> allAdmHierarchyUpdates =
-                    admHierarchyRepository.findByRegionCodeAndObjectIdOrderByAdmHierarchyEndDateDesc(regionCode, ob);
-            if (allAdmHierarchyUpdates.size() > 1) {
-                admHierarchyRepository.deleteAllById(allAdmHierarchyUpdates.stream().skip(1L)
-                        .map(AdmHierarchy::getAdmHierarchyId).collect(Collectors.toList()));
-            }
-        });
+    private String readFile(String path) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, StandardCharsets.UTF_8);
+    }
 
-        List<Long> uniqueObjectIdsAddressObjects = addressObjectsRepository.findUniqueObjectIds(regionCode);
-        uniqueObjectIdsAddressObjects.forEach(ob -> {
-            List<AddressObjects> allAddressObjectUpdates =
-                    addressObjectsRepository
-                            .findByRegionCodeAndObjectIdOrderByAddressObjectEndDateDesc(regionCode, ob);
-            if (allAddressObjectUpdates.size() > 1) {
-                addressObjectsRepository.deleteAllById(allAddressObjectUpdates.stream().skip(1L)
-                        .map(AddressObjects::getAddressObjectId).collect(Collectors.toList()));
-            }
-        });
+    private void keepOnlyLatestUpdates(Short regionCode) throws SQLException, IOException {
+//        List<Long> uniqueObjectIdsAdmHierarchy = admHierarchyRepository.findUniqueObjectIds(regionCode);
+//        uniqueObjectIdsAdmHierarchy.forEach(ob -> {
+//            List<AdmHierarchy> allAdmHierarchyUpdates =
+//                    admHierarchyRepository.findByRegionCodeAndObjectIdOrderByAdmHierarchyEndDateDesc(regionCode, ob);
+//            if (allAdmHierarchyUpdates.size() > 1) {
+//                admHierarchyRepository.deleteAllById(allAdmHierarchyUpdates.stream().skip(1L)
+//                        .map(AdmHierarchy::getAdmHierarchyId).collect(Collectors.toList()));
+//            }
+//        });
 
-        List<Long> uniqueObjectIdsHouses = housesRepository.findUniqueObjectIds(regionCode);
-        uniqueObjectIdsHouses.forEach(ob -> {
-            List<Houses> allHouseUpdates =
-                    housesRepository
-                            .findByRegionCodeAndObjectIdOrderByHouseEndDateDesc(regionCode, ob);
-            if (allHouseUpdates.size() > 1) {
-                housesRepository.deleteAllById(allHouseUpdates.stream().skip(1L)
-                        .map(Houses::getHouseId).collect(Collectors.toList()));
-            }
-        });
 
-        List<Long> uniqueObjectIdsApartments = apartmentsRepository.findUniqueObjectIds(regionCode);
-        uniqueObjectIdsApartments.forEach(ob -> {
-            List<Apartments> allApartmentUpdates =
-                    apartmentsRepository
-                            .findByRegionCodeAndObjectIdOrderByApartmentEndDateDesc(regionCode, ob);
-            if (allApartmentUpdates.size() > 1) {
-                apartmentsRepository.deleteAllById(allApartmentUpdates.stream().skip(1L)
-                        .map(Apartments::getApartmentId).collect(Collectors.toList()));
+        Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                readFile(new ClassPathResource("/database/select_queries/select_distinct_from_addr_objects.sql").getFile().getAbsolutePath()));
+
+        int fetchSize = 100;
+        int amountOfBatches = 0;
+        preparedStatement.setLong(1, regionCode);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.setFetchSize(fetchSize);
+        while (resultSet.next()) {
+            long currentObjectId = resultSet.getLong("object_id");
+            PreparedStatement ps = connection.prepareStatement(
+                    readFile(new ClassPathResource("/database/select_queries/select_by_region_code_and_object_id_from_addr_objects.sql")
+                            .getFile().getAbsolutePath()));
+            ps.setLong(1, regionCode);
+            ps.setLong(2, currentObjectId);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            PreparedStatement ps2d = connection.prepareStatement(
+                    readFile(new ClassPathResource("/database/delete_queries/delete_from_addr_objects.sql")
+                            .getFile().getAbsolutePath()));
+            while (rs.next()) {
+                long currentAddressObjectId = rs.getLong("addr_obj_id");
+                ps2d.setLong(1, currentAddressObjectId);
+                if (amountOfBatches == 80 || !rs.next()) {
+                    ps2d.executeBatch();
+                    ps2d.clearBatch();
+                    amountOfBatches = 0;
+                }
+                ps2d.addBatch();
+                ps2d.clearParameters();
+                amountOfBatches++;
+
             }
-        });
+        }
+
+
+
+        preparedStatement.close();
+
+
+
+
+
+//        List<Long> uniqueObjectIdsAddressObjects = addressObjectsRepository.findUniqueObjectIds(regionCode);
+//        uniqueObjectIdsAddressObjects.forEach(ob -> {
+//
+//            List<AddressObjects> allAddressObjectUpdates =
+//                    addressObjectsRepository
+//                            .findByRegionCodeAndObjectIdOrderByAddressObjectEndDateDesc(regionCode, ob);
+//            if (allAddressObjectUpdates.size() > 1) {
+////                addressObjectsRepository.deleteAllById(allAddressObjectUpdates.stream().skip(1L)
+////                        .map(AddressObjects::getAddressObjectId).collect(Collectors.toList()));
+////
+//
+////                    allAddressObjectUpdates.stream().skip(1L).forEach(up -> {
+////                        try {
+////                            preparedStatement.setLong(1, up.getObjectId());
+////                            if (amountOfBatches.intValue() == 80) {
+////                                preparedStatement.executeBatch();
+////                                preparedStatement.clearBatch();
+////                                amountOfBatches.set(0);
+////                            }
+////                            preparedStatement.addBatch();
+////                            preparedStatement.clearParameters();
+////                            amountOfBatches.getAndIncrement();
+////                        } catch (SQLException e) {
+////                            throw new RuntimeException(e);
+////                        }
+////                    });
+//
+//
+//            }
+//        });
+
+//        List<Long> uniqueObjectIdsHouses = housesRepository.findUniqueObjectIds(regionCode);
+//        uniqueObjectIdsHouses.forEach(ob -> {
+//            List<Houses> allHouseUpdates =
+//                    housesRepository
+//                            .findByRegionCodeAndObjectIdOrderByHouseEndDateDesc(regionCode, ob);
+//            if (allHouseUpdates.size() > 1) {
+//                housesRepository.deleteAllById(allHouseUpdates.stream().skip(1L)
+//                        .map(Houses::getHouseId).collect(Collectors.toList()));
+//            }
+//        });
+//
+//        List<Long> uniqueObjectIdsApartments = apartmentsRepository.findUniqueObjectIds(regionCode);
+//        uniqueObjectIdsApartments.forEach(ob -> {
+//            List<Apartments> allApartmentUpdates =
+//                    apartmentsRepository
+//                            .findByRegionCodeAndObjectIdOrderByApartmentEndDateDesc(regionCode, ob);
+//            if (allApartmentUpdates.size() > 1) {
+//                apartmentsRepository.deleteAllById(allApartmentUpdates.stream().skip(1L)
+//                        .map(Apartments::getApartmentId).collect(Collectors.toList()));
+//            }
+//        });
     }
 
     private class XmlParserHouseTypes extends DefaultHandler {
