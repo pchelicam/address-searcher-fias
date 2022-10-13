@@ -1,5 +1,7 @@
 package ru.pchelicam.repositories;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,7 +38,7 @@ public interface AddressObjectsRepository extends JpaRepository<AddressObjects, 
     @Query("SELECT DISTINCT ao.objectId\n" +
             "FROM AddressObjects ao\n" +
             "WHERE ao.regionCode = :regionCode")
-    List<Long> findUniqueObjectIds(@Param("regionCode") Short regionCode);
+    Slice<Long> findUniqueObjectIds(@Param("regionCode") Short regionCode, Pageable page);
 
     List<AddressObjects> findByRegionCodeAndObjectIdOrderByAddressObjectEndDateDesc(Short regionCode, Long objectId);
 

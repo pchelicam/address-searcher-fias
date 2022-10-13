@@ -11,6 +11,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: fias
+        jdbc:
+          batch_size: 80
   flyway:
     enabled: true
     schemas: fias
