@@ -91,17 +91,17 @@ public class XmlParserManager {
                 new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220725_c8537b65-da27-4b22-8433-ee5fbade9b2b.XML"), xmlParserAdmHierarchy);
 
-//        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
-//                new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
-//
-//        XmlParserHouses xmlParserHouses = new XmlParserHouses(
-//                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
-//
-//        XmlParserApartments xmlParserApartments = new XmlParserApartments(
-//                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+        XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
+                new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220725_7a19fd48-8c12-47fc-bf9a-f9b8aae10360.XML"), xmlParserAddrObjects);
+
+        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220725_bd25d6b8-631f-43ac-84d4-af63279e3134.XML"), xmlParserHouses);
+
+        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
 //
  //       callDeleteExtraData(regionCode);
 //        keepOnlyLatestUpdates(regionCode);

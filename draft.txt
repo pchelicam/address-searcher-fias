@@ -1,23 +1,39 @@
-DELETE FROM adm_hierarchy
-WHERE region_code = ?
+<APARTMENT ID="45372" OBJECTID="1548579" OBJECTGUID="06207a19-dc13-4dd2-8cd7-d83bc33e7478" CHANGEID="4195933" NUMBER="1"
+APARTTYPE="2" OPERTYPEID="10" PREVID="0" NEXTID="45380" UPDATEDATE="2019-11-23" STARTDATE="2016-08-12" ENDDATE="2016-08-12"
+ISACTUAL="0" ISACTIVE="0" />
+
+<APARTMENT ID="45380" OBJECTID="1548579" OBJECTGUID="06207a19-dc13-4dd2-8cd7-d83bc33e7478" CHANGEID="4195953" NUMBER="1"
+APARTTYPE="2" OPERTYPEID="31" PREVID="45372" NEXTID="0" UPDATEDATE="2018-08-17" STARTDATE="2016-08-12" ENDDATE="2016-08-12"
+ISACTUAL="1" ISACTIVE="0" />
+
+
+
+
+
+drop schema fias cascade
+
+
+
+DELETE FROM fias.adm_hierarchy
+WHERE region_code = 64
 AND adm_h_id IN (
     SELECT adm_h_id FROM (
         SELECT adm_h_id, object_id, adm_h_end_date, RANK() OVER (PARTITION BY object_id ORDER BY adm_h_end_date DESC)
-        FROM adm_hierarchy
-        WHERE region_code = ?
+        FROM fias.adm_hierarchy
+        WHERE region_code = 64
         AND object_id IN (
             SELECT object_id FROM (
                 SELECT object_id, COUNT(*) AS cnt
                 FROM fias.adm_hierarchy
-                WHERE region_code = ?
+                WHERE region_code = 64
                 GROUP BY 1
             ) AS f1 WHERE cnt > 1
         )
     ) AS f2 WHERE rank > 1
 )
 
-
-
+select count(distinct object_id) from fias.adm_hierarchy
+select count(*) from fias.adm_hierarchy
 
 DELETE FROM fias.addr_objects
 WHERE region_code = 64
@@ -74,3 +90,6 @@ AND apartment_id IN (
         )
     ) AS f2 WHERE rank > 1
 )
+
+select count(distinct object_id) from fias.apartments
+select count(*) from fias.apartments
