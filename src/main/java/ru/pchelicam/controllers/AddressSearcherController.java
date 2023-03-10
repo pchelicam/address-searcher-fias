@@ -1,6 +1,7 @@
 package ru.pchelicam.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,38 +84,38 @@ public class AddressSearcherController {
     }
 
     @GetMapping(value = "/locality")
-    public List<LocalityDTO> getLocalities(@RequestParam(name = "regionCode") Short regionCode, @RequestParam(name = "name") String localityName) {
+    public ResponseEntity<List<LocalityDTO>> getLocalities(@RequestParam(name = "regionCode") Short regionCode, @RequestParam(name = "name") String localityName) {
         List<AddressObjects> addressObjects = addressObjectsRepository.findLocalityByName(regionCode, localityName);
-        return addressObjects.stream().map(l ->
+        return new ResponseEntity<>(addressObjects.stream().map(l ->
                         new LocalityDTO(l.getObjectId(), l.getAddressObjectName(), l.getTypeName()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/street")
-    public List<StreetDTO> getStreets(@RequestParam(name = "regionCode") Short regionCode,
+    public ResponseEntity<List<StreetDTO>> getStreets(@RequestParam(name = "regionCode") Short regionCode,
                                       @RequestParam Long localityId,
                                       @RequestParam(name = "name") String streetName) {
         List<AddressObjects> addressObjects = addressObjectsRepository.findStreetByLocalityIdAndStreetName(regionCode, localityId, streetName);
-        return addressObjects.stream().map(l ->
+        return new ResponseEntity<>(addressObjects.stream().map(l ->
                         new StreetDTO(l.getObjectId(), l.getAddressObjectName(), l.getTypeName()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/house")
-    public List<HouseDTO> getHouses(@RequestParam(name = "regionCode") Short regionCode, @RequestParam Long streetId) {
+    public ResponseEntity<List<HouseDTO>> getHouses(@RequestParam(name = "regionCode") Short regionCode, @RequestParam Long streetId) {
         List<HousesWithHouseTypeNames> housesWithHouseTypeNamesList = housesWithHouseTypeNamesRepository.getHousesWithHouseTypeNames(regionCode, streetId);
-        return housesWithHouseTypeNamesList.stream().map(h ->
+        return new ResponseEntity<>(housesWithHouseTypeNamesList.stream().map(h ->
                         new HouseDTO(h.getObjectId(), h.getObjectGUID(), h.getHouseNum(), h.getHouseTypeName()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/apartment")
-    public List<ApartmentDTO> getApartments(@RequestParam(name = "regionCode") Short regionCode, @RequestParam Long houseId) {
+    public ResponseEntity<List<ApartmentDTO>> getApartments(@RequestParam(name = "regionCode") Short regionCode, @RequestParam Long houseId) {
         List<ApartmentsWithApartmentTypeNames> apartmentsWithApartmentTypeNamesList = apartmentsWithApartmentTypeNamesRepository
                 .getApartmentsWithApartmentTypeNames(regionCode, houseId);
-        return apartmentsWithApartmentTypeNamesList.stream().map(a ->
+        return new ResponseEntity<>(apartmentsWithApartmentTypeNamesList.stream().map(a ->
                         new ApartmentDTO(a.getObjectId(), a.getObjectGUID(), a.getApartmentNumber(), a.getApartmentTypeName()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
 //    @GetMapping(value = "/createdb")

@@ -6,6 +6,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import ru.pchelicam.services.XmlParserManager;
 
+import java.sql.Date;
+
 @SpringBootApplication
 //@EnableTransactionManagement
 public class Application implements CommandLineRunner {
@@ -27,6 +29,7 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+//        Date
 //        Instant start = Instant.now();
 //        xmlParserManager.manageDataInsert();
 //        String corrected8String = new String("%D0%A1%D0%B0%D1%80".getBytes("Cp1252"), "Cp1251");

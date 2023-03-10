@@ -18,7 +18,7 @@ DELETE FROM fias.adm_hierarchy
 WHERE region_code = 64
 AND adm_h_id IN (
     SELECT adm_h_id FROM (
-        SELECT adm_h_id, object_id, adm_h_end_date, RANK() OVER (PARTITION BY object_id ORDER BY adm_h_end_date DESC)
+        SELECT adm_h_id, object_id, adm_h_end_date, row_number() OVER (PARTITION BY object_id ORDER BY adm_h_end_date DESC)
         FROM fias.adm_hierarchy
         WHERE region_code = 64
         AND object_id IN (
@@ -29,7 +29,7 @@ AND adm_h_id IN (
                 GROUP BY 1
             ) AS f1 WHERE cnt > 1
         )
-    ) AS f2 WHERE rank > 1
+    ) AS f2 WHERE row_number > 1
 )
 
 select count(distinct object_id) from fias.adm_hierarchy
@@ -93,3 +93,79 @@ AND apartment_id IN (
 
 select count(distinct object_id) from fias.apartments
 select count(*) from fias.apartments
+
+
+
+
+
+
+
+
+
+drop schema fias cascade
+
+DELETE FROM fias.adm_hierarchy
+WHERE region_code = 64
+AND adm_h_id IN (
+    SELECT object_id FROM (
+        SELECT adm_h_id, object_id, adm_h_end_date, ROW_NUMBER() OVER (PARTITION BY object_id ORDER BY adm_h_end_date DESC)
+        FROM fias.adm_hierarchy
+        WHERE region_code = 64
+        AND object_id IN (
+            SELECT object_id FROM (
+                SELECT object_id, COUNT(*) AS cnt
+                FROM fias.adm_hierarchy
+                WHERE region_code = 64
+                GROUP BY 1
+            ) AS f1 WHERE cnt > 1
+        )
+    ) AS f2 WHERE ROW_NUMBER > 1
+)
+
+select distinct object_id from fias.adm_hierarchy
+union all
+select count(*) from fias.adm_hierarchy
+
+
+DELETE FROM fias.apartments
+WHERE region_code = 64
+AND apartment_id IN (
+    SELECT apartment_id FROM (
+        SELECT apartment_id, object_id, apart_end_date, ROW_NUMBER() OVER (PARTITION BY object_id ORDER BY apart_end_date DESC)
+        FROM fias.apartments
+        WHERE region_code = 64
+        AND object_id IN (
+            SELECT object_id FROM (
+                SELECT object_id, COUNT(*) AS cnt
+                FROM fias.apartments
+                WHERE region_code = 64
+                GROUP BY 1
+            ) AS f1 WHERE cnt > 1
+        )
+    ) AS f2 WHERE ROW_NUMBER > 1
+)
+
+select count(distinct object_id) from fias.apartments
+select count(*) from fias.apartments
+
+
+select * from (
+    SELECT object_id FROM (
+        SELECT adm_h_id, object_id, adm_h_end_date, ROW_NUMBER() OVER (PARTITION BY object_id ORDER BY adm_h_end_date DESC)
+        FROM fias.adm_hierarchy
+        WHERE region_code = 64
+        AND object_id IN (
+            SELECT object_id FROM (
+                SELECT object_id, COUNT(*) AS cnt
+                FROM fias.adm_hierarchy
+                WHERE region_code = 64
+                GROUP BY 1
+            ) AS f1 WHERE cnt > 1
+        )
+    ) AS f2 WHERE ROW_NUMBER > 1
+  union all
+    select distinct object_id from fias.adm_hierarchy
+
+) as f1
+except
+select distinct object_id from fias.adm_hierarchy

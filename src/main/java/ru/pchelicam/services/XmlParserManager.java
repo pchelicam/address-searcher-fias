@@ -2,19 +2,12 @@ package ru.pchelicam.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.SpringProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import ru.pchelicam.entities.dao.AddressObjects;
-import ru.pchelicam.entities.dao.AdmHierarchy;
-import ru.pchelicam.entities.dao.Apartments;
-import ru.pchelicam.entities.dao.Houses;
 import ru.pchelicam.repositories.AddressObjectsRepository;
 import ru.pchelicam.repositories.AddressSearcherConfigRepository;
 import ru.pchelicam.repositories.AdmHierarchyRepository;
@@ -40,9 +33,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.Iterator;
+import java.util.concurrent.Executor;
 
 @Service
 public class XmlParserManager {
@@ -636,6 +628,7 @@ public class XmlParserManager {
             String parentObjectId = attributes.getValue("PARENTOBJID");
             String fullPath = attributes.getValue("PATH");
             String admHierarchyEndDate = attributes.getValue("ENDDATE");
+            String isActual = attributes.getValue("ISACTUAL");
             try {
                 if (admHierarchyId != null) {
                     preparedStatement.setLong(1, Long.parseLong(admHierarchyId));
@@ -658,7 +651,12 @@ public class XmlParserManager {
                 } else {
                     preparedStatement.setDate(5, new Date(0L));
                 }
-                preparedStatement.setShort(6, regionCode);
+                if (isActual != null) {
+                    preparedStatement.setBoolean(6, isActual.equals("1"));
+                } else {
+                    preparedStatement.setBoolean(6, false);
+                }
+                preparedStatement.setShort(7, regionCode);
                 if (amountOfBatches == 80) {
                     preparedStatement.executeBatch();
                     preparedStatement.clearBatch();
@@ -888,6 +886,7 @@ public class XmlParserManager {
             String apartmentType = attributes.getValue("APARTTYPE");
             String apartmentNumber = attributes.getValue("NUMBER");
             String apartmentEndDate = attributes.getValue("ENDDATE");
+            String isActual = attributes.getValue("ISACTUAL");
             try {
                 if (apartmentId != null) {
                     preparedStatement.setLong(1, Long.parseLong(apartmentId));
@@ -910,7 +909,12 @@ public class XmlParserManager {
                 } else {
                     preparedStatement.setDate(5, new Date(0L));
                 }
-                preparedStatement.setShort(6, regionCode);
+                if (isActual != null) {
+                    preparedStatement.setBoolean(6, isActual.equals("1"));
+                } else {
+                    preparedStatement.setBoolean(6, false);
+                }
+                preparedStatement.setShort(7, regionCode);
                 if (amountOfBatches == 80) {
                     preparedStatement.executeBatch();
                     preparedStatement.clearBatch();

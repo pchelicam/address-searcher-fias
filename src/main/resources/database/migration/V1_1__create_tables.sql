@@ -22,6 +22,7 @@ CREATE TABLE adm_hierarchy (
     parent_object_id BIGINT,
     full_path VARCHAR(150),
     adm_h_end_date DATE,
+    is_actual BOOLEAN,
     region_code SMALLINT
 );
 
@@ -50,5 +51,6 @@ CREATE TABLE apartments (
     apart_type INTEGER,
     apart_number VARCHAR(50),
     apart_end_date DATE,
+    is_actual BOOLEAN,
     region_code SMALLINT
 );
