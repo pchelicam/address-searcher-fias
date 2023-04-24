@@ -10,6 +10,7 @@ CREATE TABLE apartment_types (
     apartment_type_shortname VARCHAR(50)
 );
 
+-- do not update this table
 CREATE TABLE reestr_objects  (
     object_id BIGINT,
     object_guid VARCHAR(36),

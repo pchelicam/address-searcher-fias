@@ -30,6 +30,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -94,6 +95,8 @@ public class XmlParserManager {
         XmlParserApartments xmlParserApartments = new XmlParserApartments(
                 new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220725_02445abb-66df-40f7-83b3-6aec7e34b4d7.XML"), xmlParserApartments);
+
+        callAfterFullImport(regionCode);
 //
  //       callDeleteExtraData(regionCode);
 //        keepOnlyLatestUpdates(regionCode);
@@ -166,12 +169,19 @@ public class XmlParserManager {
     }
 
     private void callAfterFullImport(Short regionCode) throws IOException, SQLException {
+//        Connection connection = dataSource.getConnection();
+//        Resource resource = new ClassPathResource("/database/call_procedures_queries/call_after_full_import.sql");
+//        byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
+//        CallableStatement callableStatement = connection.prepareCall(new String(bytes));
+//        callableStatement.setShort(1, regionCode);
+//        callableStatement.execute();
+//        callableStatement.close();
+//        connection.close();
         Connection connection = dataSource.getConnection();
-        Resource resource = new ClassPathResource("/database/call_procedures_queries/call_after_full_import.sql");
+        Resource resource = new ClassPathResource("/database/delete_queries/delete_extra_data_to_leave_only_actual_records.sql");
         byte[] bytes = Files.readAllBytes(Paths.get(resource.getURI()));
-        CallableStatement callableStatement = connection.prepareCall(new String(bytes));
-        callableStatement.setShort(1, regionCode);
-        callableStatement.execute();
+        Statement callableStatement = connection.createStatement();
+        callableStatement.execute(new String(bytes).replaceAll("XXX", regionCode.toString()));
         callableStatement.close();
         connection.close();
     }

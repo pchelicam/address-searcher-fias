@@ -66,23 +66,23 @@ public class XmlParserManagerUpdates {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
 
-        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
-                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220915_6c98192e-239e-4d50-921e-709cbeded838.XML"),
-                xmlParserAdmHierarchy);
+//        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
+//                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220915_6c98192e-239e-4d50-921e-709cbeded838.XML"),
+//                xmlParserAdmHierarchy);
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220915_638c30c1-e1c1-4e96-81a1-0120b3f861f2.XML"),
                 xmlParserAddrObjects);
 
-        XmlParserHouses xmlParserHouses = new XmlParserHouses(
-                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220915_dbb3f968-95f4-47fc-a771-850bd1e20553.XML"), xmlParserHouses);
-
-        XmlParserApartments xmlParserApartments = new XmlParserApartments(
-                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220915_2ecb78fd-8396-47c5-b9c7-e58614ae5a67.XML"), xmlParserApartments);
+//        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+//                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220915_dbb3f968-95f4-47fc-a771-850bd1e20553.XML"), xmlParserHouses);
+//
+//        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+//                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220915_2ecb78fd-8396-47c5-b9c7-e58614ae5a67.XML"), xmlParserApartments);
     }
 
 
@@ -263,12 +263,25 @@ public class XmlParserManagerUpdates {
 
         @Override
         public void endDocument() {
-            List<Long> addressObjectsToDelete = new ArrayList<>(addressObjectsUpdates.keySet());
-            addressObjectsToDelete.forEach(addressObjectsRepository::deleteByObjectId);
+//            List<Long> addressObjectsToDelete = new ArrayList<>(addressObjectsUpdates.keySet());
+//            addressObjectsToDelete.forEach(addressObjectsRepository::deleteByObjectId);
+            // execute query to update record
+
+//            AddressObjects addressObject =
+//                    addressObjectsUpdatesList
+//                            .stream()
+//                            .min((ao1, ao2) -> ao2.getAddressObjectEndDate().compareTo(ao1.getAddressObjectEndDate()))
+//                            .orElse(null);
+//
+//            assert addressObject != null;
+//            addressObjectsRepository.saveAndFlush(addressObject);
+
             addressObjectsUpdates.forEach((key, value) -> {
                 AddressObjects addressObject = value
                         .stream().min((ao1, ao2) -> ao2.getAddressObjectEndDate().compareTo(ao1.getAddressObjectEndDate())).orElse(null);
+
                 assert addressObject != null;
+                addressObjectsRepository.deleteByObjectId(addressObject.getObjectId());
                 try {
                     if (addressObject.getAddressObjectId() != null) {
                         preparedStatement.setLong(1, addressObject.getAddressObjectId());
