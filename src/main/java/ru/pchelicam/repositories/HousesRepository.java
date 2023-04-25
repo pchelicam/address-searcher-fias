@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pchelicam.entities.dao.Houses;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface HousesRepository extends JpaRepository<Houses, Long> {
 
@@ -21,5 +22,9 @@ public interface HousesRepository extends JpaRepository<Houses, Long> {
 
     @Transactional
     void deleteByObjectId(Long objectId);
+
+    Optional<Houses> findByObjectId(Long objectId);
+
+    boolean existsHousesByObjectId(Long objectId);
 
 }

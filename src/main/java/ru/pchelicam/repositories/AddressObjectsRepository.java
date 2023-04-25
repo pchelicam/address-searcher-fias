@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pchelicam.entities.dao.AddressObjects;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AddressObjectsRepository extends JpaRepository<AddressObjects, Long> {
 
@@ -44,5 +45,9 @@ public interface AddressObjectsRepository extends JpaRepository<AddressObjects, 
 
     @Transactional
     void deleteByObjectId(Long objectId);
+
+    Optional<AddressObjects> findByObjectId(Long objectId);
+
+    boolean existsAddressObjectsByObjectId(Long objectId);
 
 }

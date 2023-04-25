@@ -26,6 +26,9 @@ public class AdmHierarchy {
     @Column(name = "adm_h_end_date")
     private Date admHierarchyEndDate;
 
+    @Column(name = "is_actual")
+    private Boolean isActual;
+
     @Column(name = "region_code")
     private Short regionCode;
 
@@ -67,6 +70,14 @@ public class AdmHierarchy {
 
     public void setAdmHierarchyEndDate(Date admHierarchyEndDate) {
         this.admHierarchyEndDate = admHierarchyEndDate;
+    }
+
+    public Boolean getActual() {
+        return isActual;
+    }
+
+    public void setActual(Boolean actual) {
+        isActual = actual;
     }
 
     public Short getRegionCode() {

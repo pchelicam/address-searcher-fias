@@ -26,6 +26,9 @@ public class Apartments {
     @Column(name = "apart_end_date")
     private Date apartmentEndDate;
 
+    @Column(name = "is_actual")
+    private Boolean isActual;
+
     @Column(name = "region_code")
     private Short regionCode;
 
@@ -67,6 +70,14 @@ public class Apartments {
 
     public void setApartmentEndDate(Date apartmentEndDate) {
         this.apartmentEndDate = apartmentEndDate;
+    }
+
+    public Boolean getActual() {
+        return isActual;
+    }
+
+    public void setActual(Boolean actual) {
+        isActual = actual;
     }
 
     public Short getRegionCode() {

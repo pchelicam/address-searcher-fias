@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pchelicam.entities.dao.Apartments;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ApartmentsRepository extends JpaRepository<Apartments, Long> {
 
@@ -21,5 +22,9 @@ public interface ApartmentsRepository extends JpaRepository<Apartments, Long> {
 
     @Transactional
     void deleteByObjectId(Long objectId);
+
+    Optional<Apartments> findByObjectId(Long objectId);
+
+    boolean existsApartmentsByObjectId(Long objectId);
 
 }

@@ -46,18 +46,21 @@ public class XmlParserManagerUpdates {
     private final AddressObjectsRepository addressObjectsRepository;
     private final HousesRepository housesRepository;
     private final ApartmentsRepository apartmentsRepository;
+    private final DetectFileNameByMaskService detectFileNameByMaskService;
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     public XmlParserManagerUpdates(DataSource dataSource, AddressSearcherConfigRepository addressSearcherConfigRepository,
                                    AdmHierarchyRepository admHierarchyRepository, AddressObjectsRepository addressObjectsRepository,
-                                   HousesRepository housesRepository, ApartmentsRepository apartmentsRepository) {
+                                   HousesRepository housesRepository, ApartmentsRepository apartmentsRepository,
+                                   DetectFileNameByMaskService detectFileNameByMaskService) {
         this.dataSource = dataSource;
         this.addressSearcherConfigRepository = addressSearcherConfigRepository;
         this.admHierarchyRepository = admHierarchyRepository;
         this.addressObjectsRepository = addressObjectsRepository;
         this.housesRepository = housesRepository;
         this.apartmentsRepository = apartmentsRepository;
+        this.detectFileNameByMaskService = detectFileNameByMaskService;
     }
 
     public void manageUpdatingData(Short regionCode) throws IOException, SQLException, ParserConfigurationException, SAXException {
@@ -66,23 +69,29 @@ public class XmlParserManagerUpdates {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
 
-//        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
-//                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADM_HIERARCHY_20220915_6c98192e-239e-4d50-921e-709cbeded838.XML"),
-//                xmlParserAdmHierarchy);
+        XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
+                new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_ADM_HIERARCHY")),
+                xmlParserAdmHierarchy);
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
-        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_ADDR_OBJ_20220915_638c30c1-e1c1-4e96-81a1-0120b3f861f2.XML"),
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_ADDR_OBJ")),
                 xmlParserAddrObjects);
 
-//        XmlParserHouses xmlParserHouses = new XmlParserHouses(
-//                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_HOUSES_20220915_dbb3f968-95f4-47fc-a771-850bd1e20553.XML"), xmlParserHouses);
-//
-//        XmlParserApartments xmlParserApartments = new XmlParserApartments(
-//                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
-//        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" + "AS_APARTMENTS_20220915_2ecb78fd-8396-47c5-b9c7-e58614ae5a67.XML"), xmlParserApartments);
+        XmlParserHouses xmlParserHouses = new XmlParserHouses(
+                new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_HOUSES")),
+                xmlParserHouses);
+
+        XmlParserApartments xmlParserApartments = new XmlParserApartments(
+                new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
+        parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_APARTMENTS")),
+                xmlParserApartments);
     }
 
 
@@ -93,6 +102,7 @@ public class XmlParserManagerUpdates {
         private final String fileName;
         private final Short regionCode;
         private final Map<Long, List<AdmHierarchy>> admHierarchyUpdates;
+        private int amountOfBatches;
 
         public XmlParserAdmHierarchy(String fileName, Short regionCode) throws SQLException, IOException {
             this.fileName = fileName;
@@ -104,6 +114,7 @@ public class XmlParserManagerUpdates {
         private void init() throws SQLException, IOException {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
+            amountOfBatches = 0;
         }
 
         private String readFile(String path) throws IOException {
@@ -128,6 +139,7 @@ public class XmlParserManagerUpdates {
                 currentAdmHierarchy.setObjectId(objectIdLongValue);
                 currentAdmHierarchy.setParentObjectId(parentObjectId != null ? Long.parseLong(parentObjectId) : null);
                 currentAdmHierarchy.setFullPath(fullPath);
+                currentAdmHierarchy.setActual(true);
                 try {
                     currentAdmHierarchy.setAdmHierarchyEndDate(admHierarchyEndDate != null
                             ? new Date(simpleDateFormat.parse(admHierarchyEndDate).getTime())
@@ -152,12 +164,16 @@ public class XmlParserManagerUpdates {
 
         @Override
         public void endDocument() {
-            List<Long> admHierarchyToDelete = new ArrayList<>(admHierarchyUpdates.keySet());
-            admHierarchyToDelete.forEach(admHierarchyRepository::deleteByObjectId);
+//            List<Long> admHierarchyToDelete = new ArrayList<>(admHierarchyUpdates.keySet());
+//            admHierarchyToDelete.forEach(admHierarchyRepository::deleteByObjectId);
             admHierarchyUpdates.forEach((key, value) -> {
                 AdmHierarchy admHierarchy = value
                         .stream().min((ah1, ah2) -> ah2.getAdmHierarchyEndDate().compareTo(ah1.getAdmHierarchyEndDate())).orElse(null);
                 assert admHierarchy != null;
+//                admHierarchy.setAdmHierarchyId(admHierarchyRepository.findByObjectId(admHierarchy.getObjectId()).getAdmHierarchyId());
+                if (admHierarchyRepository.existsAdmHierarchyByObjectId(admHierarchy.getObjectId())) {
+                    admHierarchyRepository.deleteByObjectId(admHierarchy.getObjectId());
+                }
                 try {
                     if (admHierarchy.getAdmHierarchyId() != null) {
                         preparedStatement.setLong(1, admHierarchy.getAdmHierarchyId());
@@ -180,9 +196,16 @@ public class XmlParserManagerUpdates {
                     } else {
                         preparedStatement.setDate(5, new Date(0L));
                     }
-                    preparedStatement.setShort(6, regionCode);
-                    preparedStatement.executeUpdate();
+                    preparedStatement.setBoolean(6, admHierarchy.getActual());
+                    preparedStatement.setShort(7, regionCode);
+                    if (amountOfBatches == 80) {
+                        preparedStatement.executeBatch();
+                        preparedStatement.clearBatch();
+                        amountOfBatches = 0;
+                    }
+                    preparedStatement.addBatch();
                     preparedStatement.clearParameters();
+                    amountOfBatches++;
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -204,6 +227,7 @@ public class XmlParserManagerUpdates {
         private final String fileName;
         private final Short regionCode;
         private final Map<Long, List<AddressObjects>> addressObjectsUpdates;
+        private int amountOfBatches;
 
         public XmlParserAddrObjects(String fileName, Short regionCode) throws SQLException, IOException {
             this.fileName = fileName;
@@ -215,6 +239,7 @@ public class XmlParserManagerUpdates {
         private void init() throws SQLException, IOException {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
+            amountOfBatches = 0;
         }
 
         private String readFile(String path) throws IOException {
@@ -281,7 +306,10 @@ public class XmlParserManagerUpdates {
                         .stream().min((ao1, ao2) -> ao2.getAddressObjectEndDate().compareTo(ao1.getAddressObjectEndDate())).orElse(null);
 
                 assert addressObject != null;
-                addressObjectsRepository.deleteByObjectId(addressObject.getObjectId());
+//                addressObject.setAddressObjectId(addressObjectsRepository.findByObjectId(addressObject.getObjectId()).getAddressObjectId());
+                if (addressObjectsRepository.existsAddressObjectsByObjectId(addressObject.getObjectId())) {
+                    addressObjectsRepository.deleteByObjectId(addressObject.getObjectId());
+                }
                 try {
                     if (addressObject.getAddressObjectId() != null) {
                         preparedStatement.setLong(1, addressObject.getAddressObjectId());
@@ -306,8 +334,14 @@ public class XmlParserManagerUpdates {
                         preparedStatement.setDate(6, new Date(0L));
                     }
                     preparedStatement.setShort(7, regionCode);
-                    preparedStatement.executeUpdate();
+                    if (amountOfBatches == 80) {
+                        preparedStatement.executeBatch();
+                        preparedStatement.clearBatch();
+                        amountOfBatches = 0;
+                    }
+                    preparedStatement.addBatch();
                     preparedStatement.clearParameters();
+                    amountOfBatches++;
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -329,6 +363,7 @@ public class XmlParserManagerUpdates {
         private final String fileName;
         private final Short regionCode;
         private final Map<Long, List<Houses>> housesUpdates;
+        private int amountOfBatches;
 
         public XmlParserHouses(String fileName, Short regionCode) throws SQLException, IOException {
             this.fileName = fileName;
@@ -340,6 +375,7 @@ public class XmlParserManagerUpdates {
         private void init() throws SQLException, IOException {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
+            amountOfBatches = 0;
         }
 
         private String readFile(String path) throws IOException {
@@ -386,12 +422,18 @@ public class XmlParserManagerUpdates {
 
         @Override
         public void endDocument() {
-            List<Long> housesToDelete = new ArrayList<>(housesUpdates.keySet());
-            housesToDelete.forEach(housesRepository::deleteByObjectId);
+//            List<Long> housesToDelete = new ArrayList<>(housesUpdates.keySet());
+//            housesToDelete.forEach(housesRepository::deleteByObjectId);
+
             housesUpdates.forEach((key, value) -> {
                 Houses house = value
                         .stream().min((h1, h2) -> h2.getHouseEndDate().compareTo(h1.getHouseEndDate())).orElse(null);
+
                 assert house != null;
+//                house.setHouseId(housesRepository.findByObjectId(house.getObjectId()).getHouseId());
+                if (housesRepository.existsHousesByObjectId(house.getObjectId())) {
+                    housesRepository.deleteByObjectId(house.getObjectId());
+                }
                 try {
                     if (house.getHouseId() != null) {
                         preparedStatement.setLong(1, house.getHouseId());
@@ -415,8 +457,14 @@ public class XmlParserManagerUpdates {
                         preparedStatement.setDate(5, new Date(0L));
                     }
                     preparedStatement.setShort(6, regionCode);
-                    preparedStatement.executeUpdate();
+                    if (amountOfBatches == 80) {
+                        preparedStatement.executeBatch();
+                        preparedStatement.clearBatch();
+                        amountOfBatches = 0;
+                    }
+                    preparedStatement.addBatch();
                     preparedStatement.clearParameters();
+                    amountOfBatches++;
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -438,6 +486,7 @@ public class XmlParserManagerUpdates {
         private final String fileName;
         private final Short regionCode;
         private final Map<Long, List<Apartments>> apartmentsUpdates;
+        private int amountOfBatches;
 
         public XmlParserApartments(String fileName, Short regionCode) throws SQLException, IOException {
             this.fileName = fileName;
@@ -449,6 +498,7 @@ public class XmlParserManagerUpdates {
         private void init() throws SQLException, IOException {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(readFile(fileName).replace("XXX", regionCode.toString()));
+            amountOfBatches = 0;
         }
 
         private String readFile(String path) throws IOException {
@@ -472,6 +522,7 @@ public class XmlParserManagerUpdates {
                 currentApartment.setObjectId(objectIdLongValue);
                 currentApartment.setApartmentType(apartmentType != null ? Integer.parseInt(apartmentType) : null);
                 currentApartment.setApartmentNumber(apartmentNumber);
+                currentApartment.setActual(true);
                 try {
                     currentApartment.setApartmentEndDate(apartmentEndDate != null
                             ? new Date(simpleDateFormat.parse(apartmentEndDate).getTime())
@@ -495,12 +546,16 @@ public class XmlParserManagerUpdates {
 
         @Override
         public void endDocument() {
-            List<Long> apartmentsToDelete = new ArrayList<>(apartmentsUpdates.keySet());
-            apartmentsToDelete.forEach(apartmentsRepository::deleteByObjectId);
+//            List<Long> apartmentsToDelete = new ArrayList<>(apartmentsUpdates.keySet());
+//            apartmentsToDelete.forEach(apartmentsRepository::deleteByObjectId);
             apartmentsUpdates.forEach((key, value) -> {
                 Apartments apartment = value
                         .stream().min((ap1, ap2) -> ap2.getApartmentEndDate().compareTo(ap1.getApartmentEndDate())).orElse(null);
                 assert apartment != null;
+//                apartment.setApartmentId(apartmentsRepository.findByObjectId(apartment.getObjectId()).getApartmentId());
+                if (apartmentsRepository.existsApartmentsByObjectId(apartment.getObjectId())) {
+                    apartmentsRepository.deleteByObjectId(apartment.getObjectId());
+                }
                 try {
                     if (apartment.getApartmentId() != null) {
                         preparedStatement.setLong(1, apartment.getApartmentId());
@@ -523,9 +578,16 @@ public class XmlParserManagerUpdates {
                     } else {
                         preparedStatement.setDate(5, new Date(0L));
                     }
-                    preparedStatement.setShort(6, regionCode);
-                    preparedStatement.executeUpdate();
+                    preparedStatement.setBoolean(6, apartment.getActual());
+                    preparedStatement.setShort(7, regionCode);
+                    if (amountOfBatches == 80) {
+                        preparedStatement.executeBatch();
+                        preparedStatement.clearBatch();
+                        amountOfBatches = 0;
+                    }
+                    preparedStatement.addBatch();
                     preparedStatement.clearParameters();
+                    amountOfBatches++;
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }

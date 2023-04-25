@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pchelicam.entities.dao.AdmHierarchy;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AdmHierarchyRepository extends JpaRepository<AdmHierarchy, Long> {
 
@@ -21,5 +22,9 @@ public interface AdmHierarchyRepository extends JpaRepository<AdmHierarchy, Long
 
     @Transactional
     void deleteByObjectId(Long objectId);
+
+    Optional<AdmHierarchy> findByObjectId(Long objectId);
+
+    boolean existsAdmHierarchyByObjectId(Long objectId);
 
 }
