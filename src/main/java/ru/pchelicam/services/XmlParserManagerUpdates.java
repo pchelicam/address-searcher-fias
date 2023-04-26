@@ -94,7 +94,6 @@ public class XmlParserManagerUpdates {
                 xmlParserApartments);
     }
 
-
     private class XmlParserAdmHierarchy extends DefaultHandler {
 
         private Connection connection;
@@ -164,13 +163,10 @@ public class XmlParserManagerUpdates {
 
         @Override
         public void endDocument() {
-//            List<Long> admHierarchyToDelete = new ArrayList<>(admHierarchyUpdates.keySet());
-//            admHierarchyToDelete.forEach(admHierarchyRepository::deleteByObjectId);
             admHierarchyUpdates.forEach((key, value) -> {
                 AdmHierarchy admHierarchy = value
                         .stream().min((ah1, ah2) -> ah2.getAdmHierarchyEndDate().compareTo(ah1.getAdmHierarchyEndDate())).orElse(null);
                 assert admHierarchy != null;
-//                admHierarchy.setAdmHierarchyId(admHierarchyRepository.findByObjectId(admHierarchy.getObjectId()).getAdmHierarchyId());
                 if (admHierarchyRepository.existsAdmHierarchyByObjectId(admHierarchy.getObjectId())) {
                     admHierarchyRepository.deleteByObjectId(admHierarchy.getObjectId());
                 }
@@ -288,25 +284,11 @@ public class XmlParserManagerUpdates {
 
         @Override
         public void endDocument() {
-//            List<Long> addressObjectsToDelete = new ArrayList<>(addressObjectsUpdates.keySet());
-//            addressObjectsToDelete.forEach(addressObjectsRepository::deleteByObjectId);
-            // execute query to update record
-
-//            AddressObjects addressObject =
-//                    addressObjectsUpdatesList
-//                            .stream()
-//                            .min((ao1, ao2) -> ao2.getAddressObjectEndDate().compareTo(ao1.getAddressObjectEndDate()))
-//                            .orElse(null);
-//
-//            assert addressObject != null;
-//            addressObjectsRepository.saveAndFlush(addressObject);
-
             addressObjectsUpdates.forEach((key, value) -> {
                 AddressObjects addressObject = value
                         .stream().min((ao1, ao2) -> ao2.getAddressObjectEndDate().compareTo(ao1.getAddressObjectEndDate())).orElse(null);
 
                 assert addressObject != null;
-//                addressObject.setAddressObjectId(addressObjectsRepository.findByObjectId(addressObject.getObjectId()).getAddressObjectId());
                 if (addressObjectsRepository.existsAddressObjectsByObjectId(addressObject.getObjectId())) {
                     addressObjectsRepository.deleteByObjectId(addressObject.getObjectId());
                 }
@@ -422,15 +404,10 @@ public class XmlParserManagerUpdates {
 
         @Override
         public void endDocument() {
-//            List<Long> housesToDelete = new ArrayList<>(housesUpdates.keySet());
-//            housesToDelete.forEach(housesRepository::deleteByObjectId);
-
             housesUpdates.forEach((key, value) -> {
                 Houses house = value
                         .stream().min((h1, h2) -> h2.getHouseEndDate().compareTo(h1.getHouseEndDate())).orElse(null);
-
                 assert house != null;
-//                house.setHouseId(housesRepository.findByObjectId(house.getObjectId()).getHouseId());
                 if (housesRepository.existsHousesByObjectId(house.getObjectId())) {
                     housesRepository.deleteByObjectId(house.getObjectId());
                 }
@@ -546,13 +523,10 @@ public class XmlParserManagerUpdates {
 
         @Override
         public void endDocument() {
-//            List<Long> apartmentsToDelete = new ArrayList<>(apartmentsUpdates.keySet());
-//            apartmentsToDelete.forEach(apartmentsRepository::deleteByObjectId);
             apartmentsUpdates.forEach((key, value) -> {
                 Apartments apartment = value
                         .stream().min((ap1, ap2) -> ap2.getApartmentEndDate().compareTo(ap1.getApartmentEndDate())).orElse(null);
                 assert apartment != null;
-//                apartment.setApartmentId(apartmentsRepository.findByObjectId(apartment.getObjectId()).getApartmentId());
                 if (apartmentsRepository.existsApartmentsByObjectId(apartment.getObjectId())) {
                     apartmentsRepository.deleteByObjectId(apartment.getObjectId());
                 }

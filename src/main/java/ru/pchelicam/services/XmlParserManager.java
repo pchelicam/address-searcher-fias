@@ -1,7 +1,6 @@
 package ru.pchelicam.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
@@ -110,11 +108,6 @@ public class XmlParserManager {
                 xmlParserApartments);
 
         callAfterFullImport(regionCode);
-//
-        //       callDeleteExtraData(regionCode);
-//        keepOnlyLatestUpdates(regionCode);
-//
-//        callAfterFullImport(regionCode);
     }
 
     public void manageReloadingData(Short regionCode) throws ParserConfigurationException, SAXException, IOException, SQLException, URISyntaxException {

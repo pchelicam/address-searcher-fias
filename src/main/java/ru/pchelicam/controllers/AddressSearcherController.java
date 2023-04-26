@@ -38,8 +38,7 @@ public class AddressSearcherController {
     @Autowired
     public AddressSearcherController(AddressObjectsRepository addressObjectsRepository,
                                      HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository,
-                                     ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository,
-                                     XmlParserManager xmlParserManager, XmlParserManagerUpdates xmlParserManagerUpdates) {
+                                     ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository) {
         this.addressObjectsRepository = addressObjectsRepository;
         this.housesWithHouseTypeNamesRepository = housesWithHouseTypeNamesRepository;
         this.apartmentsWithApartmentTypeNamesRepository = apartmentsWithApartmentTypeNamesRepository;
