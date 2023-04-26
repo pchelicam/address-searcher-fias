@@ -72,25 +72,25 @@ public class XmlParserManagerUpdates {
         XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
                 new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_ADM_HIERARCHY")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_ADM_HIERARCHY")),
                 xmlParserAdmHierarchy);
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_ADDR_OBJ")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_ADDR_OBJ")),
                 xmlParserAddrObjects);
 
         XmlParserHouses xmlParserHouses = new XmlParserHouses(
                 new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_HOUSES")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_HOUSES")),
                 xmlParserHouses);
 
         XmlParserApartments xmlParserApartments = new XmlParserApartments(
                 new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_APARTMENTS")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_APARTMENTS")),
                 xmlParserApartments);
     }
 
@@ -139,7 +139,7 @@ public class XmlParserManagerUpdates {
                 currentAdmHierarchy.setObjectId(objectIdLongValue);
                 currentAdmHierarchy.setParentObjectId(parentObjectId != null ? Long.parseLong(parentObjectId) : null);
                 currentAdmHierarchy.setFullPath(fullPath);
-                currentAdmHierarchy.setActual(true);
+                currentAdmHierarchy.setIsActual(true);
                 try {
                     currentAdmHierarchy.setAdmHierarchyEndDate(admHierarchyEndDate != null
                             ? new Date(simpleDateFormat.parse(admHierarchyEndDate).getTime())
@@ -196,7 +196,7 @@ public class XmlParserManagerUpdates {
                     } else {
                         preparedStatement.setDate(5, new Date(0L));
                     }
-                    preparedStatement.setBoolean(6, admHierarchy.getActual());
+                    preparedStatement.setBoolean(6, admHierarchy.getIsActual());
                     preparedStatement.setShort(7, regionCode);
                     if (amountOfBatches == 80) {
                         preparedStatement.executeBatch();
@@ -522,7 +522,7 @@ public class XmlParserManagerUpdates {
                 currentApartment.setObjectId(objectIdLongValue);
                 currentApartment.setApartmentType(apartmentType != null ? Integer.parseInt(apartmentType) : null);
                 currentApartment.setApartmentNumber(apartmentNumber);
-                currentApartment.setActual(true);
+                currentApartment.setIsActual(true);
                 try {
                     currentApartment.setApartmentEndDate(apartmentEndDate != null
                             ? new Date(simpleDateFormat.parse(apartmentEndDate).getTime())
@@ -578,7 +578,7 @@ public class XmlParserManagerUpdates {
                     } else {
                         preparedStatement.setDate(5, new Date(0L));
                     }
-                    preparedStatement.setBoolean(6, apartment.getActual());
+                    preparedStatement.setBoolean(6, apartment.getIsActual());
                     preparedStatement.setShort(7, regionCode);
                     if (amountOfBatches == 80) {
                         preparedStatement.executeBatch();

@@ -1,7 +1,14 @@
 package ru.pchelicam.entities.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.validation.constraints.NotNull;
 
+@AllArgsConstructor
+@Getter
+@Setter
 public class AddressSearcherConfigDTO {
 
     @NotNull
@@ -9,26 +16,5 @@ public class AddressSearcherConfigDTO {
 
     @NotNull
     private String value;
-
-    public AddressSearcherConfigDTO(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 
 }

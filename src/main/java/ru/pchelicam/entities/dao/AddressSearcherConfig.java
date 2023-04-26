@@ -1,10 +1,17 @@
 package ru.pchelicam.entities.dao;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "address_searcher_config")
 public class AddressSearcherConfig {
@@ -19,35 +26,8 @@ public class AddressSearcherConfig {
     @Column(name = "property_value")
     private String propertyValue;
 
-    public AddressSearcherConfig() {
-    }
-
     public AddressSearcherConfig(String propertyName, String propertyValue) {
         this.propertyName = propertyName;
-        this.propertyValue = propertyValue;
-    }
-
-    public Integer getPropertyId() {
-        return propertyId;
-    }
-
-    public void setPropertyId(Integer propertyId) {
-        this.propertyId = propertyId;
-    }
-
-    public String getPropertyName() {
-        return propertyName;
-    }
-
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
-    }
-
-    public String getPropertyValue() {
-        return propertyValue;
-    }
-
-    public void setPropertyValue(String propertyValue) {
         this.propertyValue = propertyValue;
     }
 

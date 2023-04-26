@@ -3,7 +3,6 @@ spring:
     url: jdbc:postgresql://localhost:6543/fiasdb?currentSchema=fias
     username: postgres
     password: postgres
-#    driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: false
     open-in-view: false
@@ -22,5 +21,6 @@ spring:
     baseline-on-migrate: true
     locations: classpath:database/migration
 server:
+  port: 8090
   servlet:
     contextPath: /addressSearcher

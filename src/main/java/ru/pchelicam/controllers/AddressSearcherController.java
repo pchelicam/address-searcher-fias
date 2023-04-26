@@ -34,8 +34,6 @@ public class AddressSearcherController {
     private final AddressObjectsRepository addressObjectsRepository;
     private final HousesWithHouseTypeNamesRepository housesWithHouseTypeNamesRepository;
     private final ApartmentsWithApartmentTypeNamesRepository apartmentsWithApartmentTypeNamesRepository;
-    private final XmlParserManager xmlParserManager;
-    private final XmlParserManagerUpdates xmlParserManagerUpdates;
 
     @Autowired
     public AddressSearcherController(AddressObjectsRepository addressObjectsRepository,
@@ -45,42 +43,6 @@ public class AddressSearcherController {
         this.addressObjectsRepository = addressObjectsRepository;
         this.housesWithHouseTypeNamesRepository = housesWithHouseTypeNamesRepository;
         this.apartmentsWithApartmentTypeNamesRepository = apartmentsWithApartmentTypeNamesRepository;
-        this.xmlParserManager = xmlParserManager;
-        this.xmlParserManagerUpdates = xmlParserManagerUpdates;
-    }
-
-    @GetMapping(value = "/database/import")
-    public ResponseEntity<?> importData(@RequestParam(name = "regionCode") Short regionCode) {
-        try {
-            xmlParserManager.manageDataInsert(regionCode);
-        } catch (ParserConfigurationException | SAXException | IOException | SQLException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
-    }
-
-    @GetMapping(value = "/database/reload")
-    public ResponseEntity<?> reloadData(@RequestParam(name = "regionCode") Short regionCode) {
-        try {
-            xmlParserManager.manageReloadingData(regionCode);
-        } catch (ParserConfigurationException | SAXException | IOException | SQLException | URISyntaxException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
-    }
-
-    @GetMapping(value = "/database/update")
-    public ResponseEntity<?> updateRecords(@RequestParam(name = "regionCode") Short regionCode) {
-        try {
-            xmlParserManagerUpdates.manageUpdatingData(regionCode);
-        } catch (IOException | SQLException | ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("An error occurred while updating. Maybe you should reload the data to database.\n" +
-                    "Error message: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/locality")
@@ -117,14 +79,5 @@ public class AddressSearcherController {
                         new ApartmentDTO(a.getObjectId(), a.getObjectGUID(), a.getApartmentNumber(), a.getApartmentTypeName()))
                 .collect(Collectors.toList()), HttpStatus.OK);
     }
-
-//    @GetMapping(value = "/createdb")
-//    public ResponseEntity<?> dropDBAndCreateNewDB() {
-//        Flyway.configure()
-//                .configuration(flyway.getConfiguration())
-//                .load()
-//                .migrate();
-//        return ResponseEntity.noContent().build();
-//    }
 
 }

@@ -1,5 +1,9 @@
 package ru.pchelicam.entities.dao;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.ColumnResult;
 import javax.persistence.ConstructorResult;
@@ -39,6 +43,10 @@ import javax.persistence.SqlResultSetMapping;
         resultSetMapping = "houseWithHouseTypeNamesMapping",
         resultClass = HousesWithHouseTypeNames.class
 )
+
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 public class HousesWithHouseTypeNames {
 
@@ -54,45 +62,6 @@ public class HousesWithHouseTypeNames {
 
     @Column(name = "house_type_name")
     private String houseTypeName;
-
-    public HousesWithHouseTypeNames(Long objectId, String objectGUID, String houseNum, String houseTypeName) {
-        this.objectId = objectId;
-        this.objectGUID = objectGUID;
-        this.houseNum = houseNum;
-        this.houseTypeName = houseTypeName;
-    }
-
-    public Long getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(Long objectId) {
-        this.objectId = objectId;
-    }
-
-    public String getObjectGUID() {
-        return objectGUID;
-    }
-
-    public void setObjectGUID(String objectGUID) {
-        this.objectGUID = objectGUID;
-    }
-
-    public String getHouseNum() {
-        return houseNum;
-    }
-
-    public void setHouseNum(String houseNum) {
-        this.houseNum = houseNum;
-    }
-
-    public String getHouseTypeName() {
-        return houseTypeName;
-    }
-
-    public void setHouseTypeName(String houseTypeName) {
-        this.houseTypeName = houseTypeName;
-    }
 
 }
 

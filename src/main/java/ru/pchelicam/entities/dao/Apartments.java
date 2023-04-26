@@ -1,11 +1,16 @@
 package ru.pchelicam.entities.dao;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.sql.Date;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "apartments")
 public class Apartments {
@@ -32,59 +37,4 @@ public class Apartments {
     @Column(name = "region_code")
     private Short regionCode;
 
-    public Long getApartmentId() {
-        return apartmentId;
-    }
-
-    public void setApartmentId(Long apartmentId) {
-        this.apartmentId = apartmentId;
-    }
-
-    public Long getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(Long objectId) {
-        this.objectId = objectId;
-    }
-
-    public Integer getApartmentType() {
-        return apartmentType;
-    }
-
-    public void setApartmentType(Integer apartmentType) {
-        this.apartmentType = apartmentType;
-    }
-
-    public String getApartmentNumber() {
-        return apartmentNumber;
-    }
-
-    public void setApartmentNumber(String apartmentNumber) {
-        this.apartmentNumber = apartmentNumber;
-    }
-
-    public Date getApartmentEndDate() {
-        return apartmentEndDate;
-    }
-
-    public void setApartmentEndDate(Date apartmentEndDate) {
-        this.apartmentEndDate = apartmentEndDate;
-    }
-
-    public Boolean getActual() {
-        return isActual;
-    }
-
-    public void setActual(Boolean actual) {
-        isActual = actual;
-    }
-
-    public Short getRegionCode() {
-        return regionCode;
-    }
-
-    public void setRegionCode(Short regionCode) {
-        this.regionCode = regionCode;
-    }
 }

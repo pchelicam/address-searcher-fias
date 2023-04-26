@@ -82,31 +82,31 @@ public class XmlParserManager {
         XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_REESTR_OBJECTS")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_REESTR_OBJECTS")),
                 xmlParserReestrObjects);
 
         XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
                 new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_ADM_HIERARCHY")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_ADM_HIERARCHY")),
                 xmlParserAdmHierarchy);
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_ADDR_OBJ")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_ADDR_OBJ")),
                 xmlParserAddrObjects);
 
         XmlParserHouses xmlParserHouses = new XmlParserHouses(
                 new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_HOUSES")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_HOUSES")),
                 xmlParserHouses);
 
         XmlParserApartments xmlParserApartments = new XmlParserApartments(
                 new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_APARTMENTS")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_APARTMENTS")),
                 xmlParserApartments);
 
         callAfterFullImport(regionCode);
@@ -142,31 +142,31 @@ public class XmlParserManager {
         XmlParserReestrObjects xmlParserReestrObjects = new XmlParserReestrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_reestr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_REESTR_OBJECTS")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_REESTR_OBJECTS")),
                 xmlParserReestrObjects);
 
         XmlParserAdmHierarchy xmlParserAdmHierarchy = new XmlParserAdmHierarchy(
                 new ClassPathResource("/database/insert_queries/insert_into_adm_hierarchy.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_ADM_HIERARCHY")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_ADM_HIERARCHY")),
                 xmlParserAdmHierarchy);
 
         XmlParserAddrObjects xmlParserAddrObjects = new XmlParserAddrObjects(
                 new ClassPathResource("/database/insert_queries/insert_into_addr_objects.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_ADDR_OBJ")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_ADDR_OBJ")),
                 xmlParserAddrObjects);
 
         XmlParserHouses xmlParserHouses = new XmlParserHouses(
                 new ClassPathResource("/database/insert_queries/insert_into_houses.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_HOUSES")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_HOUSES")),
                 xmlParserHouses);
 
         XmlParserApartments xmlParserApartments = new XmlParserApartments(
                 new ClassPathResource("/database/insert_queries/insert_into_apartments.sql").getFile().getAbsolutePath(), regionCode);
         parser.parse(new File(pathToXmlData + "/" + regionCode + "/" +
-                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData, "AS_APARTMENTS")),
+                        detectFileNameByMaskService.detectFileNameByObjectName(pathToXmlData + "/" + regionCode, "AS_APARTMENTS")),
                 xmlParserApartments);
 
         callAfterFullImport(regionCode);

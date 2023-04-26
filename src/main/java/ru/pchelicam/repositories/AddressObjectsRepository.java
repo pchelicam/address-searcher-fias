@@ -1,7 +1,5 @@
 package ru.pchelicam.repositories;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pchelicam.entities.dao.AddressObjects;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AddressObjectsRepository extends JpaRepository<AddressObjects, Long> {
 
@@ -34,19 +31,8 @@ public interface AddressObjectsRepository extends JpaRepository<AddressObjects, 
                                                              @Param("parentObjectId") Long parentObjectId,
                                                              @Param("name") String streetName);
 
-
-
-    @Query("SELECT DISTINCT ao.objectId\n" +
-            "FROM AddressObjects ao\n" +
-            "WHERE ao.regionCode = :regionCode")
-    Slice<Long> findUniqueObjectIds(@Param("regionCode") Short regionCode, Pageable page);
-
-    List<AddressObjects> findByRegionCodeAndObjectIdOrderByAddressObjectEndDateDesc(Short regionCode, Long objectId);
-
     @Transactional
     void deleteByObjectId(Long objectId);
-
-    Optional<AddressObjects> findByObjectId(Long objectId);
 
     boolean existsAddressObjectsByObjectId(Long objectId);
 
