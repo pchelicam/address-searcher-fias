@@ -12,7 +12,15 @@
 ./gradlew bootRun
 ```
 
-В приложении доступны 4 endpoint-а:
+Для загрузки данных, загрузки обновлений, и перезагрузки данных доступны 3 endpoint-а соответственно:
+```
+http://localhost:8090/addressSearcher/database/import
+http://localhost:8090/addressSearcher/database/update
+http://localhost:8090/addressSearcher/database/reload
+```
+в query params необходимо указать номер региона regionCode.
+
+В приложении доступны 4 endpoint-а для поиска адресов:
 
 ```
 http://localhost:8090/addressSearcher/locality
