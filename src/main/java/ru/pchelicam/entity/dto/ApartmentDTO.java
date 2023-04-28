@@ -1,4 +1,4 @@
-package ru.pchelicam.entities.dto;
+package ru.pchelicam.entity.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

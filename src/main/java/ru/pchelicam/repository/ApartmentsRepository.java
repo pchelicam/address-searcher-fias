@@ -1,8 +1,8 @@
-package ru.pchelicam.repositories;
+package ru.pchelicam.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
-import ru.pchelicam.entities.dao.Apartments;
+import ru.pchelicam.entity.dao.Apartments;
 
 public interface ApartmentsRepository extends JpaRepository<Apartments, Long> {
 

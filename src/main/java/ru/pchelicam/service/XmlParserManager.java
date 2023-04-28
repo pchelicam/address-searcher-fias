@@ -1,4 +1,4 @@
-package ru.pchelicam.services;
+package ru.pchelicam.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import ru.pchelicam.repositories.AddressObjectsRepository;
-import ru.pchelicam.repositories.AddressSearcherConfigRepository;
-import ru.pchelicam.repositories.AdmHierarchyRepository;
-import ru.pchelicam.repositories.ApartmentsRepository;
-import ru.pchelicam.repositories.HousesRepository;
+import ru.pchelicam.repository.AddressObjectsRepository;
+import ru.pchelicam.repository.AddressSearcherConfigRepository;
+import ru.pchelicam.repository.AdmHierarchyRepository;
+import ru.pchelicam.repository.ApartmentsRepository;
+import ru.pchelicam.repository.HousesRepository;
 
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;

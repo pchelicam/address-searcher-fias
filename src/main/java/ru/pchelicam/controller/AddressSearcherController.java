@@ -1,4 +1,4 @@
-package ru.pchelicam.controllers;
+package ru.pchelicam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -6,16 +6,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.pchelicam.entities.dao.AddressObjects;
-import ru.pchelicam.entities.dao.ApartmentsWithApartmentTypeNames;
-import ru.pchelicam.entities.dao.HousesWithHouseTypeNames;
-import ru.pchelicam.entities.dto.ApartmentDTO;
-import ru.pchelicam.entities.dto.HouseDTO;
-import ru.pchelicam.entities.dto.LocalityDTO;
-import ru.pchelicam.entities.dto.StreetDTO;
-import ru.pchelicam.repositories.AddressObjectsRepository;
-import ru.pchelicam.repositories.ApartmentsWithApartmentTypeNamesRepository;
-import ru.pchelicam.repositories.HousesWithHouseTypeNamesRepository;
+import ru.pchelicam.entity.dao.AddressObjects;
+import ru.pchelicam.entity.dao.ApartmentsWithApartmentTypeNames;
+import ru.pchelicam.entity.dao.HousesWithHouseTypeNames;
+import ru.pchelicam.entity.dto.ApartmentDTO;
+import ru.pchelicam.entity.dto.HouseDTO;
+import ru.pchelicam.entity.dto.LocalityDTO;
+import ru.pchelicam.entity.dto.StreetDTO;
+import ru.pchelicam.repository.AddressObjectsRepository;
+import ru.pchelicam.repository.ApartmentsWithApartmentTypeNamesRepository;
+import ru.pchelicam.repository.HousesWithHouseTypeNamesRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;

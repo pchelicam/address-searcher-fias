@@ -1,4 +1,4 @@
-package ru.pchelicam.entities.dao;
+package ru.pchelicam.entity.dao;
 
 import lombok.Getter;
 import lombok.Setter;

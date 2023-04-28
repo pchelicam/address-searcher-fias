@@ -1,4 +1,4 @@
-package ru.pchelicam.entities.dao;
+package ru.pchelicam.entity.dao;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,24 +12,24 @@ import java.sql.Date;
 @Getter
 @Setter
 @Entity
-@Table(name = "apartments")
-public class Apartments {
+@Table(name = "adm_hierarchy")
+public class AdmHierarchy {
 
     @Id
-    @Column(name = "apartment_id")
-    private Long apartmentId;
+    @Column(name = "adm_h_id")
+    private Long admHierarchyId;
 
     @Column(name = "object_id")
     private Long objectId;
 
-    @Column(name = "apart_type")
-    private Integer apartmentType;
+    @Column(name = "parent_object_id")
+    private Long parentObjectId;
 
-    @Column(name = "apart_number")
-    private String apartmentNumber;
+    @Column(name = "full_path")
+    private String fullPath;
 
-    @Column(name = "apart_end_date")
-    private Date apartmentEndDate;
+    @Column(name = "adm_h_end_date")
+    private Date admHierarchyEndDate;
 
     @Column(name = "is_actual")
     private Boolean isActual;

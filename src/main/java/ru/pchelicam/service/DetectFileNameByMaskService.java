@@ -1,4 +1,4 @@
-package ru.pchelicam.services;
+package ru.pchelicam.service;
 
 import org.springframework.stereotype.Service;
 

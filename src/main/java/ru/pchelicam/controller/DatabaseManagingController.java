@@ -1,4 +1,4 @@
-package ru.pchelicam.controllers;
+package ru.pchelicam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.xml.sax.SAXException;
-import ru.pchelicam.services.XmlParserManager;
-import ru.pchelicam.services.XmlParserManagerUpdates;
+import ru.pchelicam.service.XmlParserManager;
+import ru.pchelicam.service.XmlParserManagerUpdates;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;

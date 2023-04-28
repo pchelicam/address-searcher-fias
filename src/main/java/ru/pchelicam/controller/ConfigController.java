@@ -1,12 +1,12 @@
-package ru.pchelicam.controllers;
+package ru.pchelicam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.pchelicam.entities.dao.AddressSearcherConfig;
-import ru.pchelicam.entities.dto.AddressSearcherConfigDTO;
-import ru.pchelicam.repositories.AddressSearcherConfigRepository;
+import ru.pchelicam.entity.dao.AddressSearcherConfig;
+import ru.pchelicam.entity.dto.AddressSearcherConfigDTO;
+import ru.pchelicam.repository.AddressSearcherConfigRepository;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
