@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:6543/fiasdb?currentSchema=fias
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/fiasdb?currentSchema=fias
+    username: # username
+    password: # password
   jpa:
     show-sql: false
     open-in-view: false
@@ -15,9 +15,9 @@ spring:
   flyway:
     enabled: true
     schemas: fias
-    url: jdbc:postgresql://localhost:6543/fiasdb
-    user: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/fiasdb
+    user: # username
+    password: # password
     baseline-on-migrate: true
     locations: classpath:database/migration
 server:
