@@ -1,6 +1,5 @@
 package ru.pchelicam.addresssearcher.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +20,6 @@ public class DatabaseManagingController {
     private final XmlParserManager xmlParserManager;
     private final XmlParserManagerUpdates xmlParserManagerUpdates;
 
-    @Autowired
     public DatabaseManagingController(XmlParserManager xmlParserManager, XmlParserManagerUpdates xmlParserManagerUpdates) {
         this.xmlParserManager = xmlParserManager;
         this.xmlParserManagerUpdates = xmlParserManagerUpdates;

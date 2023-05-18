@@ -22,7 +22,7 @@ public class ServicesAspect {
     public void addressSearcherServicesPointcut() {}
 
     @Around("addressSearcherServicesPointcut()")
-    public void logMethod(ProceedingJoinPoint point) throws Throwable {
+    public Object logMethod(ProceedingJoinPoint point) throws Throwable {
         MethodSignature signature = (MethodSignature) point.getSignature();
 
         LOGGER.info("Method {} is called",  signature.getMethod().getName());
@@ -30,6 +30,7 @@ public class ServicesAspect {
         Object object = point.proceed();
         Instant endTime = Instant.now();
         LOGGER.info("Time execution of method {} is {} ms", signature.getMethod().getName(), Duration.between(startTime, endTime).toMillis());
+        return object;
     }
 
 }
